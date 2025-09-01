@@ -5,10 +5,11 @@ export const siteConfig = {
   baseLinks: {
     home: "/",
     overview: "/overview",
-    details: "/details",
+    crab: "/crab",
+    box: "/box",
+    finance: "/finance",
     settings: {
       general: "/settings/general",
-      billing: "/settings/billing",
       users: "/settings/users",
     },
   },
