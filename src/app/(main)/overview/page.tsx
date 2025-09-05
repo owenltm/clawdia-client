@@ -20,6 +20,14 @@ export default function Overview() {
             value="75"
           />
           <DashboardMetricCard
+            label="Male Vs Female (Donut Chart)"
+            value="75"
+          />
+          <DashboardMetricCard
+            label="Box Occupancy (Donut Chart)"
+            value="75"
+          />
+          <DashboardMetricCard
             label="New Crabs (This month)"
             value="10"
           />

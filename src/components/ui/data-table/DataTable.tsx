@@ -12,7 +12,6 @@ import { cx } from "@/lib/utils"
 import * as React from "react"
 
 import { DataTableBulkEditor } from "./DataTableBulkEditor"
-import { Filterbar } from "./DataTableFilterbar"
 import { DataTablePagination } from "./DataTablePagination"
 
 import {
@@ -45,7 +44,7 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
         pageSize: pageSize,
       },
     },
-    enableRowSelection: true,
+    enableRowSelection: false,
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
@@ -56,7 +55,7 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
   return (
     <>
       <div className="space-y-3">
-        <Filterbar table={table} />
+        {/* <Filterbar table={table} /> */}
         <div className="relative overflow-hidden overflow-x-auto">
           <Table>
             <TableHead>
