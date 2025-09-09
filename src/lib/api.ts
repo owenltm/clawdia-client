@@ -9,7 +9,7 @@ interface FetchOptions<TBody = unknown> {
   signal?: AbortSignal;
 }
 
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = process.env.BASE_URL || "";
 
 export async function requestHttp<TResponse, TBody = unknown>(
   options: FetchOptions<TBody>
