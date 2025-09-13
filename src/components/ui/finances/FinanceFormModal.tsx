@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/components/Dialog";
 import { Input } from "@/components/Input";
 import {
@@ -17,15 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/Select";
-import { FinanceCategory, FinanceType } from "@/types/finance.types";
+import { FinanceCategory, FinanceFormValues, FinanceType } from "@/types/finance.types";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-type FinanceFormValues = {
-  type: FinanceType;
-  amount: string;
-  category: FinanceCategory;
-  description: string;
-};
+import { useEffect, useState } from "react";
 
 export type FinanceFormModalProps = {
   children: React.ReactNode;
@@ -44,7 +38,7 @@ export function FinanceFormModal({
   description = "Fill in the details below to add or edit a finance record.",
 }: FinanceFormModalProps) {
   const router = useRouter();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(initialValues.type ? true : false);
   const [form, setForm] = useState<FinanceFormValues>({
     type: initialValues.type || "expense",
     amount: initialValues.amount || "",
@@ -64,6 +58,30 @@ export function FinanceFormModal({
     "other_revenue",
   ];
 
+  const resetForm = () => {
+    setForm({
+      type: initialValues.type || "expense",
+      amount: initialValues.amount || "",
+      category: initialValues.category || "bills",
+      description: initialValues.description || "",
+    })
+  }
+
+  useEffect(() => {
+    if (initialValues.type) {
+      setOpen(true);
+
+      setForm({
+        type: initialValues.type || "expense",
+        amount: initialValues.amount || "",
+        category: initialValues.category || "bills",
+        description: initialValues.description || "",
+      });
+    } else {
+      resetForm();
+    }
+  }, [initialValues]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -81,7 +99,10 @@ export function FinanceFormModal({
     setLoading(true);
     setError(null);
     try {
-      await onSubmit(form);
+      await onSubmit({
+        id: initialValues.id,
+        ...form
+      });
       setOpen(false);
       router.refresh();
     } catch (err: any) {
@@ -168,7 +189,7 @@ export function FinanceFormModal({
               </Button>
             </DialogClose>
             <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : "Add"}
+              {loading ? "Saving..." : "Save"}
             </Button>
           </div>
         </form>

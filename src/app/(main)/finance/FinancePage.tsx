@@ -1,31 +1,66 @@
 "use client";
+
 import { Button } from "@/components/Button";
 import FinanceDataTable from "@/components/ui/finances/financeDataTable";
 import { FinanceFormModal } from "@/components/ui/finances/FinanceFormModal";
-import { Finance } from "@/types/finance.types";
+import { Finance, FinanceFormValues } from "@/types/finance.types";
 import { RiAddLine } from "@remixicon/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type FinancePageProps = {
   finances: Finance[],
-  onSubmit: (finance: Omit<Finance, "id">) => Promise<boolean>
+  onSubmit: (finance: Omit<Finance, "id">) => Promise<boolean>,
+  onEdit: (id: number, finance: Omit<Finance, "id">) => Promise<boolean>,
+  onDelete: (id: number) => Promise<boolean>,
 }
 
 export default function FinancePage({
   finances,
+  onEdit,
+  onDelete,
   onSubmit
 }: FinancePageProps) {
+  const router = useRouter();
+  const [focusedFinance, setFocusedFinance] = useState<FinanceFormValues | {}>({});
+
+  const onFocusFinance = (id: number) => {
+    const finance = finances.find(f => f.id === id);
+    if (!finance) { return };
+
+    setFocusedFinance(finance);
+  }
+
+  const deleteFinance = async (id: number) => {
+    await onDelete(id);
+    router.refresh();
+  }
+
+  const submitForm = async (values: FinanceFormValues) => {
+    if (values.id) {
+      // Edit existing finance
+      await onEdit(values.id, values as Omit<Finance, "id">);
+    } else {
+      await onSubmit(values as Omit<Finance, "id">);
+    }
+  }
+
   return <>
     <div className="mb-4 w-full flex items-center justify-end">
-      <FinanceFormModal onSubmit={async values => {
-        await onSubmit(values as Omit<Finance, "id">);
-        return;
-      }}>
-        <Button className="mt-4 w-full gap-2 sm:mt-0 sm:w-fit">
+      <FinanceFormModal
+        initialValues={focusedFinance}
+        onSubmit={async values => {
+          await submitForm(values);
+        }}
+        title={focusedFinance && (focusedFinance as Finance).id ? "Edit finance" : "Add finance"}
+        description="Use the form below to manage your finances."
+      >
+        <Button onClick={() => { setFocusedFinance({}); }} className="mt-4 w-full gap-2 sm:mt-0 sm:w-fit">
           <RiAddLine className="-ml-1 size-4 shrink-0" aria-hidden="true" />
           Add finance
         </Button>
       </FinanceFormModal>
     </div>
-    <FinanceDataTable finances={finances} />
+    <FinanceDataTable onDeleteFinanceAction={deleteFinance} onFocusFinanceAction={onFocusFinance} finances={finances} />
   </>
 }

@@ -2,14 +2,16 @@
 
 import { DataTable } from "@/components/ui/data-table/DataTable";
 import { Finance } from "@/types/finance.types";
-import { financeColumns } from "./financeColumns";
+import { getFinanceColumns } from "./financeColumns";
 
 interface FinanceTableProps {
   finances: Finance[];
+  onFocusFinanceAction?: (id: number) => void;
+  onDeleteFinanceAction?: (id: number) => void;
 }
 
-export default function FinanceDataTable({ finances }: FinanceTableProps) {
+export default function FinanceDataTable({ finances, onFocusFinanceAction, onDeleteFinanceAction }: FinanceTableProps) {
   return (
-    <DataTable columns={financeColumns} data={finances} />
+    <DataTable columns={getFinanceColumns({ onFocusFinanceAction, onDeleteFinanceAction })} data={finances} />
   );
 }
