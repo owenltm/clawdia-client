@@ -1,17 +1,21 @@
 import { Badge } from "@/components/Badge"
 import { ProgressBar } from "@/components/ProgressBar"
 
-import { KpiEntry } from "@/app/(main)/overview/page"
+type ProgressBarData = {
+  title: string,
+  value: number,
+  percentage: number,
+}
 
 export type CardProps = {
   title: string
-  change: string
-  value: string
-  valueDescription: string
-  ctaDescription: string
-  ctaText: string
-  ctaLink: string
-  data: KpiEntry[]
+  change?: string
+  value?: string
+  valueDescription?: string
+  ctaDescription?: string
+  ctaText?: string
+  ctaLink?: string
+  data: ProgressBarData[]
 }
 
 export function ProgressBarCard({
@@ -32,7 +36,7 @@ export function ProgressBarCard({
             <dt className="font-bold text-gray-900 sm:text-sm dark:text-gray-50">
               {title}
             </dt>
-            <Badge variant="neutral">{change}</Badge>
+            {change && <Badge variant="neutral">{change}</Badge>}
           </div>
           <dd className="mt-2 flex items-baseline gap-2">
             <span className="text-xl text-gray-900 dark:text-gray-50">
@@ -48,11 +52,11 @@ export function ProgressBarCard({
                     {item.title}
                   </span>
                   <span className="font-medium text-gray-900 dark:text-gray-50">
-                    {item.current}
-                    <span className="font-normal text-gray-500">
+                    {item.value}
+                    {/* <span className="font-normal text-gray-500">
                       /{item.allowed}
                       {item.unit}
-                    </span>
+                    </span> */}
                   </span>
                 </p>
                 <ProgressBar

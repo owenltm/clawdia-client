@@ -1,9 +1,36 @@
-"use client"
+import { DashboardMetricCard } from "@/components/ui/overview/DashboardMetricCard";
+import { ProgressBarCard } from "@/components/ui/overview/DashboardProgressBarCard";
+import { fetchFinancialOverviewData } from "@/services/financeService";
+import { fetchInventoryOverviewData } from "@/services/inventoryService";
 
+export default async function Overview() {
+  const [
+    inventoryOverviewData,
+    financialOverviewData
+  ] = await Promise.all([
+    fetchInventoryOverviewData(),
+    fetchFinancialOverviewData()
+  ]);
 
-import { DashboardMetricCard } from "@/components/ui/overview/DashboardMetricCard"
+  const getRevenueBreakdownData = () => {
+    return Object.keys(financialOverviewData.totalRevenueByCategory).map(category => {
+      return {
+        title: category,
+        value: financialOverviewData.totalRevenueByCategory[category],
+        percentage: Math.round((financialOverviewData.totalRevenueByCategory[category] / financialOverviewData.totalRevenue) * 100)
+      }
+    });
+  }
 
-export default function Overview() {
+  const getExpenseBreakdownData = () => {
+    return Object.keys(financialOverviewData.totalExpensesByCategory).map(category => {
+      return {
+        title: category,
+        value: financialOverviewData.totalExpensesByCategory[category],
+        percentage: Math.round((financialOverviewData.totalExpensesByCategory[category] / financialOverviewData.totalExpenses) * 100)
+      }
+    });
+  }
 
   return (
     <>
@@ -16,32 +43,33 @@ export default function Overview() {
         </h1>
         <div className="mt-4 grid grid-cols-1 gap-14 sm:mt-8 sm:grid-cols-2 lg:mt-10 xl:grid-cols-3">
           <DashboardMetricCard
-            label="Total Crabs"
-            value="75"
+            label="Total Crabs in Stock"
+            value={inventoryOverviewData.crabInStock.toString()}
           />
+          {/* TODO: Other metrics ? */}
           <DashboardMetricCard
-            label="Male Vs Female (Donut Chart)"
-            value="75"
+            label="Total Box"
+            value={inventoryOverviewData.BoxStatus.total.toString()}
           />
+          {/* TODO: Make donut chart */}
           <DashboardMetricCard
-            label="Box Occupancy (Donut Chart)"
-            value="75"
+            label="Box Occupancy"
+            value={inventoryOverviewData.occupancyRate.toString()}
           />
           <DashboardMetricCard
             label="New Crabs (This month)"
-            value="10"
+            value={inventoryOverviewData.newCrabsThisMonth.toString()}
           />
           <DashboardMetricCard
             label="Dead Crabs (This month)"
-            value="10"
+            value={inventoryOverviewData.deadCrabsThisMonth.toString()}
           />
           <DashboardMetricCard
             label="Sold Crabs (This month)"
-            value="10"
+            value={inventoryOverviewData.soldCrabsThisMonth.toString()}
           />
 
           {/* 
-          [ Donut Chart: Occupancy (Used vs Free) ]
           [ Bar Chart: Box Usage Trend (optional) ] 
            */}
         </div>
@@ -53,19 +81,29 @@ export default function Overview() {
         >
           Finance Overview
         </h1>
-        <div className="mt-4 grid grid-cols-1 gap-14 sm:mt-8 sm:grid-cols-2 lg:mt-10 xl:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-14 sm:mt-8 sm:grid-cols-2 lg:mt-10 xl:grid-cols-2">
           <DashboardMetricCard
             label="Total Revenue (This month)"
-            value="10"
+            value={financialOverviewData.totalRevenue.toString()}
           />
           <DashboardMetricCard
             label="Total Expenses (This month)"
-            value="10"
+            value={financialOverviewData.totalExpenses.toString()}
           />
-          <DashboardMetricCard
-            label="Net Profit (This month)"
-            value="10"
-          />
+
+          <div>
+            <ProgressBarCard
+              title="Revenue by Category"
+              data={getRevenueBreakdownData()}
+            />
+          </div>
+
+          <div>
+            <ProgressBarCard
+              title="Expenses by Category"
+              data={getExpenseBreakdownData()}
+            />
+          </div>
 
           {/* [ Pie/Bar Chart: Revenue Breakdown by Category (optional) ] */}
           {/* [ Line Chart: Revenue vs Expenses over Time ] */}

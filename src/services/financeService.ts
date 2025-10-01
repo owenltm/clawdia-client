@@ -3,6 +3,14 @@
 import { requestHttp } from "@/lib/api";
 import { Finance } from "@/types/finance.types";
 
+export const fetchFinancialOverviewData = async () => {
+  const financeResponse = await requestHttp<any>({
+    path: "/core/finance/overview",
+    method: "GET"
+  });
+  return financeResponse;
+};
+
 export const fetchAllFinances = async () => {
   const financeResponse = await requestHttp<Finance[]>({
     path: "/core/finance",

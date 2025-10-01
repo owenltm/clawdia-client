@@ -10,6 +10,7 @@ interface FetchOptions<TBody = unknown> {
 }
 
 const BASE_URL = process.env.BASE_URL || "";
+const API_KEY = process.env.API_KEY || null;
 
 export async function requestHttp<TResponse, TBody = unknown>(
   options: FetchOptions<TBody>
@@ -31,6 +32,7 @@ export async function requestHttp<TResponse, TBody = unknown>(
     method,
     headers: {
       "Content-Type": "application/json",
+      ...(API_KEY ? { "x-api-key": API_KEY } : {}),
       ...headers,
     },
     signal,
