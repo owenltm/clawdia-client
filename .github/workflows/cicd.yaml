@@ -1,0 +1,61 @@
+name: Deploy to VPS
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to deploy"
+        required: true
+        default: "development"
+        type: choice
+        options:
+          - development
+          - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.branch == 'development' && 'staging' || 'production' }}
+
+    steps:
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Build Docker image
+        run: docker build -t clawdia-client:latest .
+
+      - name: Save Docker image to tar
+        run: docker save clawdia-client:latest -o clawdia-client.tar
+
+      - name: Copy image to VPS
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "clawdia-client.tar"
+          target: "/home/${{ secrets.VPS_USER }}/docker-tars/"
+          overwrite: true
+          tar: false
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            docker load -i /home/${{ secrets.VPS_USER }}/docker-tars/clawdia-client.tar
+            if [ "${{ github.ref_name }}" = "development" ]; then
+              echo "Deploying to staging..."
+              docker stop clawdia-client-staging || true
+              docker rm clawdia-client-staging || true
+              docker run -d --restart always --name clawdia-client-staging -p 4310:3000 -e BASE_URL=${{ secrets.BASE_URL }} -e API_KEY=${{ secrets.API_KEY }} clawdia-client:latest
+            elif [ "${{ github.ref_name }}" = "master" ]; then
+              echo "Deploying to production..."
+              docker stop clawdia-client-prod || true
+              docker rm clawdia-client-prod || true
+              docker run -d --restart always --name clawdia-client-prod -p 4300:3000 -e BASE_URL=${{ secrets.BASE_URL }} -e API_KEY=${{ secrets.API_KEY }} clawdia-client:latest
+            fi
