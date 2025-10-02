@@ -24,7 +24,9 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
 
       - name: Build Docker image
-        run: docker build -t clawdia-client:latest .
+        run: docker build -t clawdia-client:latest . \
+          --build-arg BASE_URL=${{ secrets.BASE_URL }} \
+          --build-arg API_KEY=${{ secrets.API_KEY }}
 
       - name: Save Docker image to tar
         run: docker save clawdia-client:latest -o clawdia-client.tar
@@ -52,10 +54,10 @@ jobs:
               echo "Deploying to staging..."
               docker stop clawdia-client-staging || true
               docker rm clawdia-client-staging || true
-              docker run -d --restart always --name clawdia-client-staging -p 4310:3000 -e BASE_URL=${{ secrets.BASE_URL }} -e API_KEY=${{ secrets.API_KEY }} clawdia-client:latest
+              docker run -d --restart always --name clawdia-client-staging -p 4310:3000 clawdia-client:latest
             elif [ "${{ github.ref_name }}" = "master" ]; then
               echo "Deploying to production..."
               docker stop clawdia-client-prod || true
               docker rm clawdia-client-prod || true
-              docker run -d --restart always --name clawdia-client-prod -p 4300:3000 -e BASE_URL=${{ secrets.BASE_URL }} -e API_KEY=${{ secrets.API_KEY }} clawdia-client:latest
+              docker run -d --restart always --name clawdia-client-prod -p 4300:3000 clawdia-client:latest
             fi

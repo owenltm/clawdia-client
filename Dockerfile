@@ -3,9 +3,9 @@ FROM node:24-alpine AS base
 FROM base AS deps
 WORKDIR /app
 
-# Install dependencies using npm
-COPY package.json package-lock.json ./
-RUN npm ci
+# Install dependencies using yarn
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
 FROM base AS builder
 WORKDIR /app
