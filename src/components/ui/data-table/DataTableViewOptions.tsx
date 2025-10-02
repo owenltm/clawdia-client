@@ -5,7 +5,6 @@ import React from "react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover"
 import { Column, Table } from "@tanstack/react-table"
 
-import ReactDOM from "react-dom"
 import invariant from "tiny-invariant"
 
 import { Button } from "@/components/Button"
@@ -230,11 +229,11 @@ function ListItem({
         </div>
         {closestEdge && <DropIndicator edge={closestEdge} gap="1px" />}
       </div>
-      {draggableState.type === "preview" &&
+      {/* {draggableState.type === "preview" &&
         ReactDOM.createPortal(
           <div>{item.label}</div>,
           draggableState.container,
-        )}
+        )} */}
     </React.Fragment>
   )
 }

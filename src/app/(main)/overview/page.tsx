@@ -3,6 +3,8 @@ import { ProgressBarCard } from "@/components/ui/overview/DashboardProgressBarCa
 import { fetchFinancialOverviewData } from "@/services/financeService";
 import { fetchInventoryOverviewData } from "@/services/inventoryService";
 
+export const dynamic = "force-dynamic";
+
 export default async function Overview() {
   const [
     inventoryOverviewData,

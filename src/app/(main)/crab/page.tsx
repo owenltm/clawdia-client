@@ -1,6 +1,8 @@
 import CrabDataTable from "@/components/ui/crabs/crabDataTable";
 import { fetchAllCrabs } from "@/services/crabService";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const crabs = await fetchAllCrabs();
 

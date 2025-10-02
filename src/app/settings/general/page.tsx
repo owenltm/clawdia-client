@@ -16,6 +16,8 @@ import { RiExternalLinkLine } from "@remixicon/react"
 
 import { roles } from "@/data/data"
 
+export const dynamic = "force-dynamic";
+
 export default function General() {
   return (
     <>

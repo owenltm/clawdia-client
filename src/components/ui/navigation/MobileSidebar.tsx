@@ -13,16 +13,14 @@ import { cx, focusRing } from "@/lib/utils"
 import {
   RiHome2Line,
   RiLinkM,
-  RiListCheck,
   RiMenuLine,
-  RiSettings5Line,
+  RiSettings5Line
 } from "@remixicon/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 const navigation = [
   { name: "Overview", href: siteConfig.baseLinks.overview, icon: RiHome2Line },
-  { name: "Details", href: siteConfig.baseLinks.details, icon: RiListCheck },
   {
     name: "Settings",
     href: siteConfig.baseLinks.settings.general,
