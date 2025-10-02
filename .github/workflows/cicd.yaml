@@ -24,9 +24,10 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
 
       - name: Build Docker image
-        run: docker build -t clawdia-client:latest . \
-          --build-arg BASE_URL=${{ secrets.BASE_URL }} \
-          --build-arg API_KEY=${{ secrets.API_KEY }}
+        run: |
+          docker build -t clawdia-client:latest . \
+            --build-arg BASE_URL=${{ secrets.BASE_URL }} \
+            --build-arg API_KEY=${{ secrets.API_KEY }}
 
       - name: Save Docker image to tar
         run: docker save clawdia-client:latest -o clawdia-client.tar
