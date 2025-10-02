@@ -5,7 +5,7 @@ import { Finance } from "@/types/finance.types";
 
 export const fetchFinancialOverviewData = async () => {
   const financeResponse = await requestHttp<any>({
-    path: "/core/finance/overview",
+    path: "/core/finance/overview?startDate=2025-09-01&endDate=2025-09-30",
     method: "GET"
   });
   return financeResponse;

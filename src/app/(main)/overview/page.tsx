@@ -1,3 +1,4 @@
+import { DashboardLineChart } from "@/components/ui/overview/DashboardLineChart";
 import { DashboardMetricCard } from "@/components/ui/overview/DashboardMetricCard";
 import { ProgressBarCard } from "@/components/ui/overview/DashboardProgressBarCard";
 import { fetchFinancialOverviewData } from "@/services/financeService";
@@ -32,6 +33,14 @@ export default async function Overview() {
         percentage: Math.round((financialOverviewData.totalExpensesByCategory[category] / financialOverviewData.totalExpenses) * 100)
       }
     });
+  }
+
+  const getDailyFinanceData = () => {
+    return financialOverviewData.dailySummary.map((item: any) => ({
+      date: item.date,
+      revenues: item.revenues.reduce((sum: number, item: any) => sum + item.amount, 0),
+      expenses: item.expenses.reduce((sum: number, item: any) => sum + item.amount, 0)
+    }));
   }
 
   return (
@@ -107,8 +116,15 @@ export default async function Overview() {
             />
           </div>
 
-          {/* [ Pie/Bar Chart: Revenue Breakdown by Category (optional) ] */}
-          {/* [ Line Chart: Revenue vs Expenses over Time ] */}
+          <div className="col-span-2">
+            <DashboardLineChart
+              data={getDailyFinanceData()}
+              index="date"
+              categories={["revenues", "expenses"]}
+              colors={["blue", "emerald"]}
+              showLegend={true}
+            />
+          </div>
         </div >
       </section >
     </>
