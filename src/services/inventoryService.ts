@@ -9,3 +9,11 @@ export const fetchInventoryOverviewData = async () => {
   });
   return inventoryResponse;
 };
+
+export const fetchCurrentInventory = async () => {
+  const inventoryResponse = await requestHttp<any>({
+    path: "/core/inventory/current",
+    method: "GET"
+  });
+  return inventoryResponse;
+};

@@ -90,6 +90,7 @@ export function FinanceFormModal({
   const handleTypeChange = (value: string) => {
     setForm((prev) => ({ ...prev, type: value as FinanceType }));
   };
+
   const handleCategoryChange = (value: string) => {
     setForm((prev) => ({ ...prev, category: value as FinanceCategory }));
   };

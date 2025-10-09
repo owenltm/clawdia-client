@@ -1,11 +1,12 @@
-import { fetchAllBoxes } from "@/services/boxService";
+import { fetchCurrentInventory } from "@/services/inventoryService";
+import BoxPage from "./BoxPage";
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const boxes = await fetchAllBoxes();
+  const inventory = await fetchCurrentInventory();
 
-  console.log(boxes);
-
-  return <div>Boxes Page - To be implemented</div>
+  return <>
+    <BoxPage inventories={inventory.items} />
+  </>
 }
