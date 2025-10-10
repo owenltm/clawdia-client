@@ -6,11 +6,11 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from "@/components/Dialog";
 import { Input } from "@/components/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select";
+import { useBoxContext } from "@/contexts/BoxContext";
 import { CrabStatus } from "@/types/crab.types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -60,6 +60,8 @@ export function BoxContentModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { checkOutCrab } = useBoxContext();
+
   const resetForm = () => {
     setForm({
       weight: 0,
@@ -71,6 +73,11 @@ export function BoxContentModal({
   }
 
   useEffect(() => {
+    // If box is selected, open modal
+    if (initialValues.boxId) {
+      setOpen(true);
+    }
+
     if (initialValues.weight) {
       setForm({
         weight: initialValues.weight || 0,
@@ -79,7 +86,7 @@ export function BoxContentModal({
         checkInDate: initialValues.checkInDate?.split("T")[0] || new Date().toISOString().split("T")[0],  // format to YYYY-MM-DD
         boxId: initialValues.boxId || 0
       });
-    } else if (form.weight !== 0) {
+    } else if (initialValues.weight !== 0) {
       resetForm();
     }
   }, [initialValues]);
@@ -92,6 +99,29 @@ export function BoxContentModal({
   const handleSupplierChange = (value: string) => {
     setForm((prev) => ({ ...prev, supplier: value }));
   };
+
+  const handleCheckOut = async (status: CrabStatus.DEAD | CrabStatus.SOLD) => {
+    if (!form.boxId) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      await checkOutCrab(
+        form.boxId,
+        {
+          status
+        }
+      );
+
+      resetForm();
+      setOpen(false);
+      router.refresh();
+    } catch (err: any) {
+      setError(err?.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,7 +143,7 @@ export function BoxContentModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -181,10 +211,18 @@ export function BoxContentModal({
           <div>
             <label htmlFor="notes" className="block mb-1">Other actions</label>
             <div className="flex gap-4">
-              <Button type="button" variant="ghost" disabled={loading}>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={loading}
+                onClick={() => handleCheckOut(CrabStatus.SOLD)}>
                 Mark sold
               </Button>
-              <Button type="button" variant="ghost" disabled={loading}>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={loading}
+                onClick={() => handleCheckOut(CrabStatus.DEAD)}>
                 Mark dead
               </Button>
             </div>

@@ -69,8 +69,7 @@ export function FinanceFormModal({
 
   useEffect(() => {
     if (initialValues.type) {
-      setOpen(true);
-
+      // Set form values when editing existing finance
       setForm({
         type: initialValues.type || "expense",
         amount: initialValues.amount || "",
@@ -78,8 +77,11 @@ export function FinanceFormModal({
         description: initialValues.description || "",
       });
     } else {
+      // Reset value when showing empty box
       resetForm();
     }
+
+    setOpen(true);
   }, [initialValues]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

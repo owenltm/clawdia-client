@@ -11,7 +11,7 @@ export const fetchAllBoxes = async () => {
   return crabResponse;
 }
 
-export const addContentToBox = async (boxId: number, content: AddBoxContent) => {
+export const checkInCrab = async (boxId: number, content: AddBoxContent) => {
   try {
     const response = await requestHttp({
       path: `/core/inventory/${boxId}/checkIn`,
@@ -26,12 +26,16 @@ export const addContentToBox = async (boxId: number, content: AddBoxContent) => 
   }
 }
 
-export const updateContentOnBox = async (boxId: number, content: UpdateBoxContent) => {
+export const checkOutCrab = async (boxId: number, content: UpdateBoxContent) => {
   try {
+    console.log("Checking out crab from box:", boxId, content);
+
     const response = await requestHttp({
       path: `/core/inventory/${boxId}/checkOut`,
-      method: "PUT",
-      body: { ...content, boxId },
+      method: "POST",
+      body: {
+        status: content.status?.toUpperCase()
+      },
     });
 
     return { success: true, data: response };

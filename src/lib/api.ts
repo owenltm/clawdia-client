@@ -28,6 +28,8 @@ export async function requestHttp<TResponse, TBody = unknown>(
 
     const url = `${BASE_URL}${path}${queryString}`;
 
+    console.log(`Requesting ${method} ${url}`);
+
     // Prepare fetch config
     const config: RequestInit = {
       method,

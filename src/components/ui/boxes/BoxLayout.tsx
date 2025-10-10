@@ -1,15 +1,13 @@
-import { addContentToBox } from "@/services/boxService";
-import { updateCrab } from "@/services/crabService";
-import { AddBoxContent, Inventory, UpdateBoxContent } from "@/types/box.types";
-import { BoxContentModal } from "./BoxContentModal";
+import { useBoxContext } from "@/contexts/BoxContext";
+import { Inventory } from "@/types/box.types";
 
 type BoxLayoutProps = {
-  box: Inventory;
-  onAddContent?: (boxId: number, values: AddBoxContent) => Promise<void>;
-  onUpdateContent?: (boxId: number, values: UpdateBoxContent) => void;
+  inventory: Inventory;
 };
 
-export default function BoxLayout({ box }: BoxLayoutProps) {
+export default function BoxLayout({ inventory }: BoxLayoutProps) {
+  const { updateFocusedBox } = useBoxContext();
+
   const getContainerStyles = (status: string) => {
     switch (status.toLowerCase()) {
       case 'filled':
@@ -28,43 +26,29 @@ export default function BoxLayout({ box }: BoxLayoutProps) {
     }
   };
 
-  const handleSaveContent = async (values: any) => {
-    if (box.content.length > 0) {
-      console.log(values);
-      await updateCrab(box.content[0].id, values as UpdateBoxContent);
-    } else {
-      await addContentToBox(box.id, values as AddBoxContent);
-    }
-  };
+  const handleBoxClick = () => {
+    updateFocusedBox(inventory);
+  }
 
   return (
-    // Creates a modal for every box, maybe not so ideal
-    <BoxContentModal
-      key={box.id}
-      initialValues={box.content.length == 1 ? box.content[0] as any : {}}
-      onSubmit={handleSaveContent}
-      title={box.content.length > 0 ? `Edit Content in ${box.label}` : `Add Content to ${box.label}`}
-      description="Fill in the details below to add or edit a content record."
-    >
-      <div className={`flex flex-col justify-around items-center rounded-lg py-2 px-4 shadow-sm border w-48 min-h-28  ${getContainerStyles(box.status)}`}>
-        {/* Label */}
-        <div className={`font-semibold text-lg ${getTextStyles(box.status)}`}>
-          {box.label}
-        </div>
-
-        {/* Description */}
-        <div className={`${getTextStyles(box.status)} overflow-y-auto w-full`}>
-          {box.content.length > 0 && box.content.map((crab, index) => (
-            <div key={index} className="w-full">
-              <div className={`flex justify-between gap-4 text-xl ${getTextStyles(box.status)}`}>
-                <div>{crab.weight}</div>
-                <div>{crab.supplier}</div>
-              </div>
-              <div className={`text-sm ${getTextStyles(box.status)}`}>{new Date(crab.checkInDate).toLocaleDateString()}</div>
-            </div>
-          ))}
-        </div>
+    <div onClick={handleBoxClick} className={`flex flex-col justify-around items-center rounded-lg py-2 px-4 shadow-sm border w-48 min-h-28  ${getContainerStyles(inventory.status)}`}>
+      {/* Label */}
+      <div className={`font-semibold text-lg ${getTextStyles(inventory.status)}`}>
+        {inventory.label}
       </div>
-    </BoxContentModal>
+
+      {/* Description */}
+      <div className={`${getTextStyles(inventory.status)} overflow-y-auto w-full`}>
+        {inventory.content.length > 0 && inventory.content.map((crab, index) => (
+          <div key={index} className="w-full">
+            <div className={`flex justify-between gap-4 text-xl ${getTextStyles(inventory.status)}`}>
+              <div>{crab.weight}</div>
+              <div>{crab.supplier}</div>
+            </div>
+            <div className={`text-sm ${getTextStyles(inventory.status)}`}>{new Date(crab.checkInDate).toLocaleDateString()}</div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

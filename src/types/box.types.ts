@@ -15,8 +15,8 @@ export type Inventory = {
   id: number,
   label: string,
   status: BoxStatus,
-  content: Crab[]
+  content: Crab[],
 }
 
 export type AddBoxContent = Omit<Crab, "id" | "checkoutDate" | "createdAt" | "updatedAt">
-export type UpdateBoxContent = Partial<AddBoxContent> & { id: number };
+export type UpdateBoxContent = Partial<AddBoxContent>;
