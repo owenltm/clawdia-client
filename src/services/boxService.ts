@@ -11,6 +11,20 @@ export const fetchAllBoxes = async () => {
   return crabResponse;
 }
 
+export const updateBox = async (boxId: number, boxData: Partial<Box>) => {
+  try {
+    const response = await requestHttp({
+      path: `/core/boxes/${boxId}`,
+      method: "PATCH",
+      body: boxData,
+    });
+    return { success: true, data: response };
+  } catch (error: any) {
+    console.error('Error updating box:', error);
+    return { success: false, error: error.message || "Failed to update box" };
+  }
+}
+
 export const checkInCrab = async (boxId: number, content: AddBoxContent) => {
   try {
     const response = await requestHttp({

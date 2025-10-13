@@ -31,14 +31,14 @@ export default function BoxLayout({ inventory }: BoxLayoutProps) {
   }
 
   return (
-    <div onClick={handleBoxClick} className={`flex flex-col justify-around items-center rounded-lg py-2 px-4 shadow-sm border w-48 min-h-28  ${getContainerStyles(inventory.status)}`}>
+    <div onClick={handleBoxClick} className={`flex flex-col items-left rounded-lg py-2 px-4 shadow-sm border w-48 ${getContainerStyles(inventory.status)}`}>
       {/* Label */}
-      <div className={`font-semibold text-lg ${getTextStyles(inventory.status)}`}>
+      <div className={`font-semibold mb-2 text-lg ${getTextStyles(inventory.status)}`}>
         {inventory.label}
       </div>
 
       {/* Description */}
-      <div className={`${getTextStyles(inventory.status)} overflow-y-auto w-full`}>
+      {/* <div className={`${getTextStyles(inventory.status)} overflow-y-auto w-full`}>
         {inventory.content.length > 0 && inventory.content.map((crab, index) => (
           <div key={index} className="w-full">
             <div className={`flex justify-between gap-4 text-xl ${getTextStyles(inventory.status)}`}>
@@ -48,7 +48,7 @@ export default function BoxLayout({ inventory }: BoxLayoutProps) {
             <div className={`text-sm ${getTextStyles(inventory.status)}`}>{new Date(crab.checkInDate).toLocaleDateString()}</div>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

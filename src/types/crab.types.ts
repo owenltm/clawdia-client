@@ -12,6 +12,7 @@ export type Crab = {
   status: CrabStatus;                 // mysqlEnum(...) union
   checkInDate: string;                // DATE -> 'YYYY-MM-DD' string
   checkOutDate: string | null;        // DATE nullable
+  notes: string | null;               // TEXT nullable
   boxId: number | null;               // int FK nullable
   createdAt: Date;                    // timestamp(..., { mode: "date" }) -> Date
   updatedAt: Date;                    // timestamp(..., { mode: "date" }) -> Date

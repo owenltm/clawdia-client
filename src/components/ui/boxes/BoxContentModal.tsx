@@ -186,7 +186,6 @@ export function BoxContentModal({
             </div>
           </div>
           <div>
-            {/* TODO: Add default value for editing */}
             <label htmlFor="checkInDate" className="block mb-1">Check-in Date</label>
             <Input
               type="date"
@@ -198,7 +197,6 @@ export function BoxContentModal({
             />
           </div>
           <div>
-            {/* FIX: typing here caused error */}
             <label htmlFor="notes" className="block mb-1">Notes</label>
             <Input
               type="text"
@@ -210,17 +208,19 @@ export function BoxContentModal({
           </div>
           <div>
             <label htmlFor="notes" className="block mb-1">Other actions</label>
-            <div className="flex gap-4">
+            <div className="w-full flex gap-4">
               <Button
+                className="flex-1"
                 type="button"
-                variant="ghost"
+                variant="secondary"
                 disabled={loading}
                 onClick={() => handleCheckOut(CrabStatus.SOLD)}>
                 Mark sold
               </Button>
               <Button
+                className="flex-1"
                 type="button"
-                variant="ghost"
+                variant="destructive"
                 disabled={loading}
                 onClick={() => handleCheckOut(CrabStatus.DEAD)}>
                 Mark dead

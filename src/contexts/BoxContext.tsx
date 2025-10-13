@@ -1,6 +1,6 @@
-import { checkInCrab, checkOutCrab } from '@/services/boxService';
+import { checkInCrab, checkOutCrab, updateBox } from '@/services/boxService';
 import { updateCrab } from '@/services/crabService';
-import { AddBoxContent, Inventory, UpdateBoxContent } from '@/types/box.types';
+import { AddBoxContent, Box, Inventory, UpdateBoxContent } from '@/types/box.types';
 import { Crab } from '@/types/crab.types';
 import React, { createContext, ReactNode, useContext } from 'react';
 
@@ -10,6 +10,7 @@ type BoxContextType = {
   checkInCrab: (boxId: number, content: AddBoxContent) => Promise<any>;
   checkOutCrab: (boxId: number, content: UpdateBoxContent) => Promise<any>;
   updateCrab: (crabId: number, content: Partial<Crab>) => Promise<any>;
+  updateBox: (boxId: number, boxData: Partial<Box>) => Promise<any>;
 }
 
 type BoxProviderProps = {
@@ -31,7 +32,8 @@ export function BoxProvider({ children }: BoxProviderProps) {
       updateFocusedBox,
       checkInCrab,
       checkOutCrab,
-      updateCrab
+      updateCrab,
+      updateBox
     }}>
       {children}
     </BoxContext.Provider>

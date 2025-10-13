@@ -1,6 +1,7 @@
 import { useBoxContext } from "@/contexts/BoxContext";
 import { AddBoxContent, Inventory } from "@/types/box.types";
-import { BoxContentFormValues, BoxContentModal } from "./BoxContentModal";
+import { BoxContentFormValues } from "./BoxContentModal";
+import { BoxDetailDrawer } from "./BoxDetailDrawer";
 import BoxLayout from "./BoxLayout";
 
 type BoxArrayLayoutProps = {
@@ -32,23 +33,37 @@ export default function BoxArrayLayout({ boxes }: BoxArrayLayoutProps) {
 
   return (
     // Creates a modal for every box, maybe not so ideal
-    <BoxContentModal
-      initialValues={(focusedBox && focusedBox?.content.length > 0) ? focusedBox?.content[0] as any : { boxId: focusedBox?.id }}
-      onSubmit={handleModalSave}
-      title={(focusedBox && focusedBox?.content.length > 0) ? `Edit Content in ${focusedBox.label}` : `Add Content to ${focusedBox?.label}`}
-      description="Fill in the details below to add or edit a content record."
+    // <BoxContentModal
+    //   initialValues={(focusedBox && focusedBox?.content.length > 0) ? focusedBox?.content[0] as any : { boxId: focusedBox?.id }}
+    //   onSubmit={handleModalSave}
+    //   title={(focusedBox && focusedBox?.content.length > 0) ? `Edit Content in ${focusedBox.label}` : `Add Content to ${focusedBox?.label}`}
+    //   description="Fill in the details below to add or edit a content record."
+    // >
+    //   <div className="overflow-x-auto overflow-y-auto">
+    //     <div className="flex gap-4">
+    //       {columns.map((column, columnIndex) => (
+    //         <div key={columnIndex} className="flex flex-col gap-2">
+    //           {column.map((box) => (
+    //             <BoxLayout key={box.id} inventory={box} />
+    //           ))}
+    //         </div>
+    //       ))}
+    //     </div>
+    //   </div>
+    // </BoxContentModal>
+
+    <BoxDetailDrawer
+      initialValues={focusedBox || {}}
     >
-      <div className="overflow-x-auto overflow-y-auto">
-        <div className="flex gap-4">
-          {columns.map((column, columnIndex) => (
-            <div key={columnIndex} className="flex flex-col gap-2">
-              {column.map((box) => (
-                <BoxLayout key={box.id} inventory={box} />
-              ))}
-            </div>
-          ))}
-        </div>
+      <div className="flex gap-4">
+        {columns.map((column, columnIndex) => (
+          <div key={columnIndex} className="flex flex-col gap-4">
+            {column.map((box) => (
+              <BoxLayout key={box.id} inventory={box} />
+            ))}
+          </div>
+        ))}
       </div>
-    </BoxContentModal>
+    </BoxDetailDrawer>
   );
 }

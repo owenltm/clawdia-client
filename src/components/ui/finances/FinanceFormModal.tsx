@@ -68,7 +68,9 @@ export function FinanceFormModal({
   }
 
   useEffect(() => {
-    if (initialValues.type) {
+    console.log("Initial values changed:", initialValues);
+    if (initialValues.amount) {
+      setOpen(true);
       // Set form values when editing existing finance
       setForm({
         type: initialValues.type || "expense",
@@ -81,7 +83,6 @@ export function FinanceFormModal({
       resetForm();
     }
 
-    setOpen(true);
   }, [initialValues]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
