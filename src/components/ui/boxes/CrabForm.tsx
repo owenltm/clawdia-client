@@ -7,6 +7,7 @@ import { useState } from "react";
 
 export type CrabFormProps = {
   initialValues: Partial<Crab>;
+  onSaveCallback?: () => void;
 }
 
 export type CrabFormValues = {
@@ -27,7 +28,7 @@ const suppliers: string[] = [
   "A"
 ];
 
-export default function CrabForm({ initialValues }: CrabFormProps) {
+export default function CrabForm({ initialValues, onSaveCallback }: CrabFormProps) {
   const { updateCrab } = useBoxContext();
 
   const [loading, setLoading] = useState(false);
@@ -41,12 +42,13 @@ export default function CrabForm({ initialValues }: CrabFormProps) {
     boxId: initialValues.boxId || 0
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      updateCrab(initialValues.id!, form);
+      await updateCrab(initialValues.id!, form);
+      onSaveCallback?.();
     } catch (err: any) {
       console.error(err);
     } finally {

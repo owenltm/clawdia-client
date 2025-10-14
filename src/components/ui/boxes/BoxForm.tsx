@@ -5,7 +5,8 @@ import { Box } from "@/types/box.types";
 import { useState } from "react";
 
 export type BoxFormProps = {
-  initialValues: Partial<Box>
+  initialValues: Partial<Box>,
+  onSaveCallback?: () => void;
 }
 
 export type BoxFormValues = {
@@ -14,7 +15,7 @@ export type BoxFormValues = {
 }
 
 export default function BoxForm(
-  { initialValues }: BoxFormProps
+  { initialValues, onSaveCallback }: BoxFormProps
 ) {
   const { updateBox } = useBoxContext();
 
@@ -24,12 +25,20 @@ export default function BoxForm(
     maxFill: initialValues?.maxFill || 0,
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // useEffect(() => {
+  //   setForm({
+  //     label: initialValues?.label || "",
+  //     maxFill: initialValues?.maxFill || 0,
+  //   });
+  // }, [initialValues]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      updateBox(initialValues.id!, form);
+      await updateBox(initialValues.id!, form);
+      onSaveCallback?.();
     } catch (err: any) {
       console.error(err);
     } finally {

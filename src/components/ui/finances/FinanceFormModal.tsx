@@ -19,7 +19,7 @@ import {
 } from "@/components/Select";
 import { FinanceCategory, FinanceFormValues, FinanceType } from "@/types/finance.types";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type FinanceFormModalProps = {
   children: React.ReactNode;
@@ -58,14 +58,14 @@ export function FinanceFormModal({
     "other_revenue",
   ];
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setForm({
       type: initialValues.type || "expense",
       amount: initialValues.amount || "",
       category: initialValues.category || "bills",
       description: initialValues.description || "",
     })
-  }
+  }, [initialValues]);
 
   useEffect(() => {
     console.log("Initial values changed:", initialValues);
@@ -83,7 +83,7 @@ export function FinanceFormModal({
       resetForm();
     }
 
-  }, [initialValues]);
+  }, [initialValues, resetForm]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
