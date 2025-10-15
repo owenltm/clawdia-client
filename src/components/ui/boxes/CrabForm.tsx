@@ -2,6 +2,7 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select";
 import { useBoxContext } from "@/contexts/BoxContext";
+import { checkInCrab } from "@/services/boxService";
 import { Crab, CrabStatus } from "@/types/crab.types";
 import { useState } from "react";
 
@@ -47,7 +48,12 @@ export default function CrabForm({ initialValues, onSaveCallback }: CrabFormProp
     setLoading(true);
 
     try {
-      await updateCrab(initialValues.id!, form);
+      if (!initialValues.id) {
+        await checkInCrab(form.boxId, { ...form, status: "in" } as any);
+      } else {
+        await updateCrab(initialValues.id!, form);
+      }
+
       onSaveCallback?.();
     } catch (err: any) {
       console.error(err);
@@ -108,16 +114,19 @@ export default function CrabForm({ initialValues, onSaveCallback }: CrabFormProp
           disabled={loading}
         />
       </div>
-      <div>
-        <label htmlFor="checkOutDate" className="block mb-1">Check-out Date</label>
-        <Input
-          type="date"
-          name="checkOutDate"
-          value={form.checkOutDate}
-          onChange={handleChange}
-          disabled={loading}
-        />
-      </div>
+      {
+        form.status != CrabStatus.IN && (
+          <div>
+            <label htmlFor="checkOutDate" className="block mb-1">Check-out Date</label>
+            <Input
+              type="date"
+              name="checkOutDate"
+              value={form.checkOutDate}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+        )}
       <div>
         <label htmlFor="notes" className="block mb-1">Notes</label>
         <Input

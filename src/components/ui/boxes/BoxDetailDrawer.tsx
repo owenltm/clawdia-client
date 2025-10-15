@@ -12,8 +12,9 @@ import {
 import { useBoxContext } from "@/contexts/BoxContext";
 import { fetchInventoryByBoxId } from "@/services/inventoryService";
 import { Box, Inventory } from "@/types/box.types";
+import { Crab } from "@/types/crab.types";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BoxForm from "./BoxForm";
 import CrabForm from "./CrabForm";
 
@@ -39,8 +40,7 @@ export function BoxDetailDrawer({
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
-
-  const { updateFocusedBox } = useBoxContext();
+  const { focusedBox, updateFocusedBox } = useBoxContext();
 
   const isEditMode = !!initialValues;
   const drawerTitle = title || (isEditMode ? "Edit Inventory Box" : "Create New Inventory Box");
@@ -49,18 +49,9 @@ export function BoxDetailDrawer({
     : "Fill in the details to create a new Inventory Box.");
 
   useEffect(() => {
-    // TODO: Maybe can check the context directly instead of using effect
-    // If box is selected, open drawer
-    if (initialValues?.id) {
-      setOpen(true);
-    }
-  }, [initialValues]);
-
-  useEffect(() => {
-    if (!open) {
-      updateFocusedBox(null);
-    }
-  }, [open, updateFocusedBox]);
+    // Open drawer based on focusedBox state
+    setOpen(!!focusedBox?.id);
+  }, [focusedBox]);
 
   const onSave = async () => {
     router.refresh();
@@ -71,8 +62,16 @@ export function BoxDetailDrawer({
     }
   }
 
+  const onOpenChange = (open: boolean) => {
+    // On Close, clear focused box
+    if (!open) {
+      updateFocusedBox(null);
+    }
+    setOpen(open);
+  }
+
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer open={open} onOpenChange={onOpenChange}>
       {children}
       <DrawerContent>
         <DrawerHeader>
@@ -83,56 +82,13 @@ export function BoxDetailDrawer({
         <DrawerBody>
           <div className="space-y-6">
             {/* Section 1: Box Details */}
-            <BoxSection initialValues={initialValues as Box} onSave={onSave} />
+            <BoxSection initialValues={focusedBox as any || {}} onSave={onSave} />
 
             {/* Divider */}
             <div className="border-t border-gray-200 dark:border-gray-800"></div>
 
             {/* Section 2: Crab Data */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
-                  Crab Content
-                </h3>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => {
-                    // TODO: Implement add crab functionality
-                    console.log("Add crab clicked");
-                  }}
-                >
-                  Add Crab
-                </Button>
-              </div>
-
-              {/* Crab List Placeholder */}
-              <div className="space-y-2">
-                {isEditMode ? (
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {initialValues?.content && initialValues?.content.length > 0 &&
-                      initialValues?.content.map((crab) => (
-                        <div key={crab.id} className="mb-4">
-                          <CrabForm initialValues={crab} onSaveCallback={onSave} />
-                        </div>
-                      ))
-                    }
-                    {initialValues?.content && initialValues?.content.length === 0 &&
-                      <p>No crabs in this box.</p>
-                    }
-                  </div>
-                ) : (
-                  <div className="p-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-md text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      No crabs added yet
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                      Click Add Crab to add content
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+            <CrabSection initialValues={focusedBox?.content || []} boxId={focusedBox?.id!} onSave={onSave} />
           </div>
         </DrawerBody>
       </DrawerContent>
@@ -194,4 +150,113 @@ export const BoxSection = (
       </div>
     )}
   </>
+}
+
+export const CrabSection = (
+  {
+    initialValues,
+    boxId,
+    onSave
+  }: {
+    initialValues: Crab[]
+    boxId: number
+    onSave: () => Promise<void> | void
+  }
+) => {
+  const [crabForms, setCrabForms] = useState<Partial<Crab>[]>(initialValues || []);
+  const [isEditing, setIsEditing] = useState<boolean[]>(initialValues.map(c => false));
+  const crabListRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setCrabForms(initialValues || []);
+  }, [initialValues]);
+
+  const handleFormSubmit = async (id: number) => {
+    await onSave();
+    toggleIsEditing(id, false);
+  }
+
+  const toggleIsEditing = (index: number, value: boolean) => {
+    setIsEditing((prev) => {
+      const newEditing = [...prev];
+      newEditing[index] = value;
+      return newEditing;
+    });
+  }
+
+  return <div>
+    <div className="flex items-center justify-between mb-4">
+      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+        Crab Content
+      </h3>
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={() => {
+          setCrabForms((prev) => ([{ boxId: boxId }, ...prev]));
+          toggleIsEditing(0, true);
+        }}
+      >
+        Add Crab
+      </Button>
+    </div>
+
+    <div className="space-y-2">
+      <div ref={crabListRef} className="text-sm text-gray-500 dark:text-gray-400">
+        {crabForms.length > 0 &&
+          crabForms.map((crab, index) => (
+            <div
+              key={crab.id || `crab-${index}`}
+              className="mb-4"
+            >
+              {isEditing[index] ? (
+                <CrabForm initialValues={crab} onSaveCallback={() => handleFormSubmit(index)} />
+              ) : (
+                <div className="mb-4 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+                  <div className="w-full flex gap-4 mb-4">
+                    <div className="flex-1">
+                      <div className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Weight
+                      </div>
+                      <div>{crab.weight}</div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Supplier
+                      </div>
+                      <div>{crab.supplier}</div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => {
+                        toggleIsEditing(index, true);
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                  <div className="mb-4">
+                    <div className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Check In Date
+                    </div>
+                    <div>{crab.checkInDate ? new Date(crab.checkInDate).toLocaleDateString() : ''}</div>
+                  </div>
+                  <div className="mb-4">
+                    <div className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Notes
+                    </div>
+                    <div>{crab.notes}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        }
+        {crabForms.length === 0 &&
+          <p>No crabs in this box.</p>
+        }
+      </div>
+    </div>
+  </div>
 }
