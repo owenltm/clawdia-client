@@ -11,7 +11,7 @@ import {
 } from "@/components/Drawer";
 import { useBoxContext } from "@/contexts/BoxContext";
 import { fetchInventoryByBoxId } from "@/services/inventoryService";
-import { Box, Inventory } from "@/types/box.types";
+import { Box } from "@/types/box.types";
 import { Crab } from "@/types/crab.types";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -26,14 +26,13 @@ export type BoxFormValues = {
 
 export type BoxDetailDrawerProps = {
   children: React.ReactNode;
-  initialValues?: Partial<Inventory>;
+  // initialValues?: Partial<Inventory>;
   title?: string;
   description?: string;
 };
 
 export function BoxDetailDrawer({
   children,
-  initialValues,
   title,
   description,
 }: BoxDetailDrawerProps) {
@@ -42,22 +41,26 @@ export function BoxDetailDrawer({
   const [open, setOpen] = useState(false);
   const { focusedBox, updateFocusedBox } = useBoxContext();
 
-  const isEditMode = !!initialValues;
+  const isEditMode = !!focusedBox?.id;
   const drawerTitle = title || (isEditMode ? "Edit Inventory Box" : "Create New Inventory Box");
   const drawerDescription = description || (isEditMode
     ? "Update the inventory details below."
     : "Fill in the details to create a new Inventory Box.");
 
   useEffect(() => {
-    // Open drawer based on focusedBox state
     setOpen(!!focusedBox?.id);
   }, [focusedBox]);
 
-  const onSave = async () => {
+  const onSave = async (id: number | null) => {
     router.refresh();
 
-    const refreshed = await fetchInventoryByBoxId(initialValues?.id!);
+    if (!id && !focusedBox?.id) {
+      return;
+    }
+
+    const refreshed = await fetchInventoryByBoxId(id || focusedBox!.id);
     if (refreshed) {
+      // Update with fresh data, drawer stays open
       updateFocusedBox(refreshed);
     }
   }
@@ -88,7 +91,9 @@ export function BoxDetailDrawer({
             <div className="border-t border-gray-200 dark:border-gray-800"></div>
 
             {/* Section 2: Crab Data */}
-            <CrabSection initialValues={focusedBox?.content || []} boxId={focusedBox?.id!} onSave={onSave} />
+            {focusedBox?.id && (
+              <CrabSection initialValues={focusedBox?.content || []} boxId={focusedBox?.id!} onSave={onSave} />
+            )}
           </div>
         </DrawerBody>
       </DrawerContent>
@@ -103,21 +108,36 @@ export const BoxSection = (
   }:
     {
       initialValues: Box,
-      onSave: () => Promise<void> | void
+      onSave: (boxId: number | null) => Promise<void> | void
     }
 ) => {
-  const [isEditing, setIsEditing] = useState(false);
+  const { createBox, updateBox } = useBoxContext();
+  const [isEditing, setIsEditing] = useState(initialValues.label ? false : true);
 
-  const handleFormSubmit = async () => {
-    await onSave();
-    setIsEditing(false);
+  const handleFormSubmit = async (values: any) => {
+    let boxId = null;
+    if (initialValues.id) {
+      await updateBox(initialValues.id!, values);
+      boxId = initialValues.id!;
+    } else {
+      const { data } = await createBox({ ...values, status: "empty" });
+
+      boxId = data.id;
+    }
+
+    await onSave(boxId);
+
+    if (!initialValues.label) {
+      setIsEditing(false);
+    }
   }
 
   return <>
     {isEditing ? (
       <BoxForm
         initialValues={initialValues}
-        onSaveCallback={handleFormSubmit}
+        onSave={handleFormSubmit}
+        onCancel={() => { setIsEditing(false) }}
       />
     ) : (
       <div>
@@ -160,11 +180,11 @@ export const CrabSection = (
   }: {
     initialValues: Crab[]
     boxId: number
-    onSave: () => Promise<void> | void
+    onSave: (boxId: number | null) => Promise<void> | void
   }
 ) => {
   const [crabForms, setCrabForms] = useState<Partial<Crab>[]>(initialValues || []);
-  const [isEditing, setIsEditing] = useState<boolean[]>(initialValues.map(() => false));
+  const [isEditing, setIsEditing] = useState<boolean[]>(initialValues.map((c) => c.weight ? false : true));
   const crabListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -172,7 +192,7 @@ export const CrabSection = (
   }, [initialValues]);
 
   const handleFormSubmit = async (id: number) => {
-    await onSave();
+    await onSave(null);
     toggleIsEditing(id, false);
   }
 
@@ -210,7 +230,7 @@ export const CrabSection = (
               className="mb-4"
             >
               {isEditing[index] ? (
-                <CrabForm initialValues={crab} onSaveCallback={() => handleFormSubmit(index)} />
+                <CrabForm initialValues={crab} onSaveCallback={() => handleFormSubmit(index)} onCancel={() => toggleIsEditing(index, false)} />
               ) : (
                 <div className="mb-4 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
                   <div className="w-full flex gap-4 mb-4">

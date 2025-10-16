@@ -1,4 +1,3 @@
-import { useBoxContext } from "@/contexts/BoxContext";
 import { Inventory } from "@/types/box.types";
 import { BoxDetailDrawer } from "./BoxDetailDrawer";
 import BoxLayout from "./BoxLayout";
@@ -9,7 +8,6 @@ type BoxArrayLayoutProps = {
 
 export default function BoxArrayLayout({ boxes }: BoxArrayLayoutProps) {
   const columnHeight = 10;
-  const { focusedBox } = useBoxContext();
 
   // Split boxes into columns
   const columns: Inventory[][] = [];
@@ -18,9 +16,7 @@ export default function BoxArrayLayout({ boxes }: BoxArrayLayoutProps) {
   }
 
   return (
-    <BoxDetailDrawer
-      initialValues={focusedBox || {}}
-    >
+    <BoxDetailDrawer>
       <div className="flex gap-4">
         {columns.map((column, columnIndex) => (
           <div key={columnIndex} className="flex flex-col gap-4">

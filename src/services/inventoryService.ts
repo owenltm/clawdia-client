@@ -19,7 +19,7 @@ export const fetchCurrentInventory = async () => {
   return inventoryResponse;
 };
 
-export const fetchInventoryByBoxId = async (boxId: number) => {
+export const fetchInventoryByBoxId = async (boxId: number): Promise<Inventory | null> => {
   const inventoryResponse = await requestHttp<any>({
     path: `/core/inventory/current`,
     method: "GET"

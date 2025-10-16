@@ -1,7 +1,7 @@
 "use server";
 
 import { requestHttp } from "@/lib/api";
-import { AddBoxContent, Box, UpdateBoxContent } from "@/types/box.types";
+import { AddBoxContent, Box, CreateBoxParam, UpdateBoxContent } from "@/types/box.types";
 
 export const fetchAllBoxes = async () => {
   const crabResponse = await requestHttp<Box[]>({
@@ -9,6 +9,20 @@ export const fetchAllBoxes = async () => {
     method: "GET",
   });
   return crabResponse;
+}
+
+export const createBox = async (boxData: CreateBoxParam) => {
+  try {
+    const response = await requestHttp({
+      path: "/core/boxes",
+      method: "POST",
+      body: boxData,
+    });
+    return { success: true, data: response };
+  } catch (error: any) {
+    console.error('Error creating box:', error);
+    return { success: false, error: error.message || "Failed to create box" };
+  }
 }
 
 export const updateBox = async (boxId: number, boxData: Partial<Box>) => {

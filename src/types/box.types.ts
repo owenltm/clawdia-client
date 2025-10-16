@@ -21,3 +21,5 @@ export type Inventory = {
 
 export type AddBoxContent = Omit<Crab, "id" | "checkoutDate" | "createdAt" | "updatedAt">
 export type UpdateBoxContent = Partial<AddBoxContent>;
+
+export type CreateBoxParam = Omit<Box, "id" | "createdAt" | "updatedAt">;

@@ -9,6 +9,7 @@ import { useState } from "react";
 export type CrabFormProps = {
   initialValues: Partial<Crab>;
   onSaveCallback?: () => void;
+  onCancel?: () => void;
 }
 
 export type CrabFormValues = {
@@ -29,7 +30,7 @@ const suppliers: string[] = [
   "A"
 ];
 
-export default function CrabForm({ initialValues, onSaveCallback }: CrabFormProps) {
+export default function CrabForm({ initialValues, onSaveCallback, onCancel }: CrabFormProps) {
   const { updateCrab } = useBoxContext();
 
   const [loading, setLoading] = useState(false);
@@ -137,8 +138,7 @@ export default function CrabForm({ initialValues, onSaveCallback }: CrabFormProp
           disabled={loading}
         />
       </div>
-      {/* <div>
-        <label htmlFor="notes" className="block mb-1">Other actions</label>
+      <div>
         <div className="w-full flex gap-4">
           <Button
             className="flex-1"
@@ -152,16 +152,29 @@ export default function CrabForm({ initialValues, onSaveCallback }: CrabFormProp
           <Button
             className="flex-1"
             type="button"
-            variant="destructive"
+            variant="secondary"
             disabled={loading}
           // onClick={() => handleCheckOut(CrabStatus.DEAD)}
           >
             Mark dead
           </Button>
         </div>
-      </div> */}
-      <div className="">
-        <Button type="submit" disabled={loading}>
+      </div>
+      <div className="flex gap-4">
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={loading}
+          // className="flex-1"
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={loading}
+          className="flex-1"
+        >
           {loading ? "Saving..." : "Save"}
         </Button>
       </div>

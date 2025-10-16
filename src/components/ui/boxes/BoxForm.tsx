@@ -1,12 +1,12 @@
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { useBoxContext } from "@/contexts/BoxContext";
 import { Box } from "@/types/box.types";
 import { useState } from "react";
 
 export type BoxFormProps = {
   initialValues: Partial<Box>,
-  onSaveCallback?: () => void;
+  onCancel?: () => void;
+  onSave?: (values: any) => void | Promise<void>;
 }
 
 export type BoxFormValues = {
@@ -15,30 +15,20 @@ export type BoxFormValues = {
 }
 
 export default function BoxForm(
-  { initialValues, onSaveCallback }: BoxFormProps
+  { initialValues, onSave, onCancel }: BoxFormProps
 ) {
-  const { updateBox } = useBoxContext();
-
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<BoxFormValues>({
     label: initialValues?.label || "",
     maxFill: initialValues?.maxFill || 0,
   });
 
-  // useEffect(() => {
-  //   setForm({
-  //     label: initialValues?.label || "",
-  //     maxFill: initialValues?.maxFill || 0,
-  //   });
-  // }, [initialValues]);
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await updateBox(initialValues.id!, form);
-      onSaveCallback?.();
+      await onSave?.(form);
     } catch (err: any) {
       console.error(err);
     } finally {
@@ -87,10 +77,39 @@ export default function BoxForm(
         />
       </div>
 
-      <div className="">
+      <div className="flex gap-4 mb-4">
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={loading}
+          className="flex-1"
+        >
+          Mark Unavailable
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={loading}
+        // className="flex-1"
+        >
+          Delete
+        </Button>
+      </div>
+
+      <div className="flex gap-4">
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={loading}
+          // className="flex-1"
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
         <Button
           type="submit"
           disabled={loading}
+          className="flex-1"
         >
           {loading ? "Saving..." : "Save"}
         </Button>
