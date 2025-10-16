@@ -164,7 +164,7 @@ export const CrabSection = (
   }
 ) => {
   const [crabForms, setCrabForms] = useState<Partial<Crab>[]>(initialValues || []);
-  const [isEditing, setIsEditing] = useState<boolean[]>(initialValues.map(c => false));
+  const [isEditing, setIsEditing] = useState<boolean[]>(initialValues.map(() => false));
   const crabListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
