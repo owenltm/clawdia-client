@@ -50,7 +50,7 @@ export async function requestHttp<TResponse, TBody = unknown>(
 
     if (!response.ok) {
       // Optionally handle errors in a typed way
-      throw new Error(`HTTP error ${response.status}`);
+      throw new Error(`HTTP error ${response.body ? await response.text() : response.status}`);
     }
 
     return response.json() as Promise<TResponse>;

@@ -17,3 +17,5 @@ export type Crab = {
   createdAt: Date;                    // timestamp(..., { mode: "date" }) -> Date
   updatedAt: Date;                    // timestamp(..., { mode: "date" }) -> Date
 };
+
+export type NewCrab = Omit<Crab, 'id' | 'createdAt' | 'updatedAt'>;

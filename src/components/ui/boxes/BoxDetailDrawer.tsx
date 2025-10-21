@@ -10,13 +10,15 @@ import {
   DrawerTitle
 } from "@/components/Drawer";
 import { useBoxContext } from "@/contexts/BoxContext";
+import { checkInCrab } from "@/services/boxService";
+import { updateCrab } from "@/services/crabService";
 import { fetchInventoryByBoxId } from "@/services/inventoryService";
 import { Box } from "@/types/box.types";
-import { Crab } from "@/types/crab.types";
+import { Crab, CrabStatus } from "@/types/crab.types";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BoxForm from "./BoxForm";
-import CrabForm from "./CrabForm";
+import CrabForm, { CrabFormValues } from "./CrabForm";
 
 export type BoxFormValues = {
   label: string;
@@ -183,6 +185,7 @@ export const CrabSection = (
     onSave: (boxId: number | null) => Promise<void> | void
   }
 ) => {
+  const { checkOutCrab } = useBoxContext();
   const [crabForms, setCrabForms] = useState<Partial<Crab>[]>(initialValues || []);
   const [isEditing, setIsEditing] = useState<boolean[]>(initialValues.map((c) => c.weight ? false : true));
   const crabListRef = useRef<HTMLDivElement>(null);
@@ -191,9 +194,24 @@ export const CrabSection = (
     setCrabForms(initialValues || []);
   }, [initialValues]);
 
-  const handleFormSubmit = async (id: number) => {
-    await onSave(null);
-    toggleIsEditing(id, false);
+  const handleFormSubmit = async (id: number | null, values: CrabFormValues) => {
+    if (!id) {
+      await checkInCrab(boxId, { ...values, status: "in" } as any);
+    } else {
+      await updateCrab(id, values);
+    }
+  }
+
+  const handleCrabCheckout = async (boxId: number | null, values: { status: CrabStatus, checkOutDate: string }) => {
+    if (!boxId) {
+      return;
+    }
+
+    // console.log("Checking out crab from box:", boxId, values);
+
+    const response = await checkOutCrab(boxId, values);
+    console.log("Check out response:", response);
+    onSave(boxId);
   }
 
   const toggleIsEditing = (index: number, value: boolean) => {
@@ -230,7 +248,18 @@ export const CrabSection = (
               className="mb-4"
             >
               {isEditing[index] ? (
-                <CrabForm initialValues={crab} onSaveCallback={() => handleFormSubmit(index)} onCancel={() => toggleIsEditing(index, false)} />
+                <CrabForm
+                  initialValues={crab}
+                  onSave={async (crabId, values) => {
+                    handleFormSubmit(crabId, values);
+
+                    onSave(null);
+                    toggleIsEditing(index, false);
+                  }}
+                  onCheckout={handleCrabCheckout}
+                  onCancel={() => toggleIsEditing(index, false)}
+
+                />
               ) : (
                 <div className="mb-4 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
                   <div className="w-full flex gap-4 mb-4">

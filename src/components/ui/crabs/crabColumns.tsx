@@ -1,5 +1,7 @@
+import { Button } from "@/components/Button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader";
 import { Crab, CrabStatus } from "@/types/crab.types";
+import { RiDeleteBinLine, RiEditLine } from "@remixicon/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 const columnHelper = createColumnHelper<Crab>()
@@ -36,75 +38,123 @@ const StatusCell = ({ value }: { value: string }) => {
   );
 };
 
-export const crabColumns = [
-  columnHelper.accessor("id", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ID" />
-    ),
-    enableSorting: true,
-    enableHiding: false,
-    meta: {
-      className: "text-left",
-      displayName: "ID",
-    },
-    cell: ({ getValue }) => `#${getValue<number>()}`,
-  }),
-  columnHelper.accessor("weight", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Weight" />
-    ),
-    enableSorting: true,
-    enableHiding: false,
-    meta: {
-      className: "text-left",
-      displayName: "Weight",
-    },
-  }),
-  columnHelper.accessor("supplier", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Supplier" />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    meta: {
-      className: "text-left",
-      displayName: "Supplier",
-    },
-  }),
-  columnHelper.accessor("status", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    meta: {
-      className: "text-left",
-      displayName: "Status",
-    },
-    cell: ({ getValue }) => (<StatusCell value={getValue<string>()} />),
-  }),
-  columnHelper.accessor("checkInDate", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Check In Date" />
-    ),
-    enableSorting: true,
-    enableHiding: false,
-    meta: {
-      className: "text-left",
-      displayName: "Check In Date",
-    },
-    cell: ({ getValue }) => getValue<Date | string>() ? formatDate(getValue<Date | string>()) : "-",
-  }),
-  columnHelper.accessor("checkOutDate", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Check Out Date" />
-    ),
-    enableSorting: true,
-    enableHiding: false,
-    meta: {
-      className: "text-left",
-      displayName: "Check Out Date",
-    },
-    cell: ({ getValue }) => getValue<Date | string>() ? formatDate(getValue<Date | string>()) : "-",
-  }),
-] as ColumnDef<Crab>[]
+export function getCrabColumns({
+  onEditActionClicked,
+  onDeleteActionClicked,
+}: {
+  onEditActionClicked?: (id: number) => void;
+  onDeleteActionClicked?: (id: number) => void;
+}): ColumnDef<Crab>[] {
+  return [
+    columnHelper.accessor("id", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="ID" />
+      ),
+      enableSorting: true,
+      enableHiding: false,
+      meta: {
+        className: "text-left",
+        displayName: "ID",
+      },
+      cell: ({ getValue }) => `#${getValue<number>()}`,
+    }),
+    columnHelper.accessor("weight", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Weight" />
+      ),
+      enableSorting: true,
+      enableHiding: false,
+      meta: {
+        className: "text-left",
+        displayName: "Weight",
+      },
+    }),
+    columnHelper.accessor("supplier", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Supplier" />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      meta: {
+        className: "text-left",
+        displayName: "Supplier",
+      },
+    }),
+    columnHelper.accessor("status", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      meta: {
+        className: "text-left",
+        displayName: "Status",
+      },
+      cell: ({ getValue }) => (<StatusCell value={getValue<string>()} />),
+    }),
+    columnHelper.accessor("checkInDate", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Check In Date" />
+      ),
+      enableSorting: true,
+      enableHiding: false,
+      meta: {
+        className: "text-left",
+        displayName: "Check In Date",
+      },
+      cell: ({ getValue }) => getValue<Date | string>() ? formatDate(getValue<Date | string>()) : "-",
+    }),
+    columnHelper.accessor("notes", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Notes" />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      meta: {
+        className: "text-left",
+        displayName: "Notes",
+      },
+    }),
+    columnHelper.accessor("checkOutDate", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Check Out Date" />
+      ),
+      enableSorting: true,
+      enableHiding: false,
+      meta: {
+        className: "text-left",
+        displayName: "Check Out Date",
+      },
+      cell: ({ getValue }) => getValue<Date | string>() ? formatDate(getValue<Date | string>()) : "-",
+    }),
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex gap-2 justify-center">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              onEditActionClicked?.(row.original.id);
+            }}
+          >
+            <RiEditLine className="-ml-1 size-4 shrink-0" aria-hidden="true" />
+          </Button>
+
+          <Button
+            variant="secondary"
+            onClick={() => {
+              onDeleteActionClicked?.(row.original.id);
+            }}
+          >
+            <RiDeleteBinLine className="-ml-1 size-4 shrink-0" aria-hidden="true" />
+          </Button>
+        </div>
+      ),
+      meta: {
+        className: "text-center",
+        displayName: "Actions",
+      },
+    }
+  ] as ColumnDef<Crab>[];
+}

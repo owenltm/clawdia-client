@@ -1,14 +1,13 @@
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select";
-import { useBoxContext } from "@/contexts/BoxContext";
-import { checkInCrab } from "@/services/boxService";
 import { Crab, CrabStatus } from "@/types/crab.types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export type CrabFormProps = {
   initialValues: Partial<Crab>;
-  onSaveCallback?: () => void;
+  onSave?: (id: number | null, values: CrabFormValues) => Promise<void>;
+  onCheckout?: (boxId: number | null, values: { status: CrabStatus, checkOutDate: string }) => Promise<void>;
   onCancel?: () => void;
 }
 
@@ -19,7 +18,7 @@ export type CrabFormValues = {
   "status": CrabStatus,
   "checkInDate": string, // YYYY-MM-DD date string
   "checkOutDate"?: string, // YYYY-MM-DD date string
-  "boxId": number
+  "boxId": number | null
 }
 
 const suppliers: string[] = [
@@ -30,32 +29,47 @@ const suppliers: string[] = [
   "A"
 ];
 
-export default function CrabForm({ initialValues, onSaveCallback, onCancel }: CrabFormProps) {
-  const { updateCrab } = useBoxContext();
-
+export default function CrabForm({ initialValues, onSave, onCheckout, onCancel }: CrabFormProps) {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<CrabFormValues>({
     weight: initialValues.weight || 0,
     supplier: initialValues.supplier || "",
     status: initialValues.status || CrabStatus.IN,
     checkInDate: initialValues.checkInDate?.split("T")[0] || new Date().toISOString().split("T")[0],  // format to YYYY-MM-DD
-    checkOutDate: initialValues.checkOutDate ? initialValues.checkOutDate.split("T")[0] : undefined,
+    ...(initialValues.checkOutDate && { checkOutDate: initialValues.checkOutDate?.split("T")[0] }),
     notes: initialValues.notes || "",
-    boxId: initialValues.boxId || 0
+    boxId: initialValues.boxId || null
   });
+
+  useEffect(() => {
+    setForm({
+      weight: initialValues.weight || 0,
+      supplier: initialValues.supplier || "",
+      status: initialValues.status || CrabStatus.IN,
+      checkInDate: initialValues.checkInDate?.split("T")[0] || new Date().toISOString().split("T")[0],  // format to YYYY-MM-DD
+      ...(initialValues.checkOutDate && { checkOutDate: initialValues.checkOutDate?.split("T")[0] }),
+      notes: initialValues.notes || "",
+      boxId: initialValues.boxId || null
+    });
+  }, [initialValues]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      if (!initialValues.id) {
-        await checkInCrab(form.boxId, { ...form, status: "in" } as any);
-      } else {
-        await updateCrab(initialValues.id!, form);
-      }
+      await onSave?.(initialValues.id || null, form);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-      onSaveCallback?.();
+  const handleQuickAction = async (status: CrabStatus) => {
+    try {
+      setLoading(true);
+      await onCheckout?.(initialValues.boxId || null, { status, checkOutDate: new Date().toISOString().split("T")[0] });
     } catch (err: any) {
       console.error(err);
     } finally {
@@ -116,13 +130,13 @@ export default function CrabForm({ initialValues, onSaveCallback, onCancel }: Cr
         />
       </div>
       {
-        form.status != CrabStatus.IN && (
+        initialValues.status != CrabStatus.IN && (
           <div>
             <label htmlFor="checkOutDate" className="block mb-1">Check-out Date</label>
             <Input
               type="date"
               name="checkOutDate"
-              value={form.checkOutDate}
+              value={form.checkOutDate || ""}
               onChange={handleChange}
               disabled={loading}
             />
@@ -145,7 +159,7 @@ export default function CrabForm({ initialValues, onSaveCallback, onCancel }: Cr
             type="button"
             variant="secondary"
             disabled={loading}
-          // onClick={() => handleCheckOut(CrabStatus.SOLD)}
+            onClick={() => handleQuickAction(CrabStatus.SOLD)}
           >
             Mark sold
           </Button>
@@ -154,7 +168,7 @@ export default function CrabForm({ initialValues, onSaveCallback, onCancel }: Cr
             type="button"
             variant="secondary"
             disabled={loading}
-          // onClick={() => handleCheckOut(CrabStatus.DEAD)}
+            onClick={() => handleQuickAction(CrabStatus.DEAD)}
           >
             Mark dead
           </Button>

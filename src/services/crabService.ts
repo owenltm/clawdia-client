@@ -1,7 +1,7 @@
 "use server";
 
 import { requestHttp } from "@/lib/api";
-import { Crab } from "@/types/crab.types";
+import { Crab, NewCrab } from "@/types/crab.types";
 
 export const fetchAllCrabs = async () => {
   const crabResponse = await requestHttp<Crab[]>({
@@ -9,6 +9,20 @@ export const fetchAllCrabs = async () => {
     method: "GET",
   });
   return crabResponse;
+}
+
+export const createCrab = async (data: NewCrab) => {
+  try {
+    const response = await requestHttp({
+      path: `/core/crabs`,
+      method: "POST",
+      body: data,
+    });
+    return response;
+  } catch (error) {
+    console.error("Error updating crab:", error);
+    throw error;
+  }
 }
 
 export const updateCrab = async (crabId: number, data: Partial<Crab>) => {

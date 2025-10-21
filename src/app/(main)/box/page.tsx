@@ -7,6 +7,7 @@ export default async function Page() {
   const inventory = await fetchCurrentInventory();
 
   return <>
+    {/* TODO: Consider streaming to partially load the page */}
     <BoxPage inventories={inventory.items} />
   </>
 }

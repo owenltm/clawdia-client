@@ -61,9 +61,7 @@ export const checkOutCrab = async (boxId: number, content: UpdateBoxContent) => 
     const response = await requestHttp({
       path: `/core/inventory/${boxId}/checkOut`,
       method: "POST",
-      body: {
-        status: content.status?.toUpperCase()
-      },
+      body: content,
     });
 
     return { success: true, data: response };
