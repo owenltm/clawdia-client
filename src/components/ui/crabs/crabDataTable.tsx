@@ -17,10 +17,15 @@ export default function CrabTable({ crabs }: CrabTableProps) {
     updateFocusedCrab(crabToEdit);
   }
 
+  const onDeleteActionClicked = (id: number) => {
+    // TODO: Implement delete action
+    console.log("Delete action clicked for crab with ID:", id);
+  }
+
   return (
     <DataTable columns={getCrabColumns({
       onEditActionClicked,
-      onDeleteActionClicked: (id: number) => { },
+      onDeleteActionClicked
     })} data={crabs} />
   );
 }
