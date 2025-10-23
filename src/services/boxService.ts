@@ -59,8 +59,6 @@ export const checkInCrab = async (boxId: number, content: AddBoxContent) => {
 
 export const checkOutCrab = async (boxId: number, content: UpdateBoxContent) => {
   try {
-    console.log("Checking out crab from box:", boxId, content);
-
     const response = await requestHttp({
       path: `/core/inventory/${boxId}/checkOut`,
       method: "POST",

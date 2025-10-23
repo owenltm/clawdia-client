@@ -31,7 +31,7 @@ const suppliers: string[] = [
   "A"
 ];
 
-export default function CrabForm({ initialValues, onSave, onCheckout, onCancel }: CrabFormProps) {
+export default function CrabForm({ initialValues, onSave, onCancel }: CrabFormProps) {
   const [loading, setLoading] = useState(false);
   const [availableBoxes, setAvailableBoxes] = useState<Box[]>([]);
 

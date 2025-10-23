@@ -68,7 +68,6 @@ export function FinanceFormModal({
   }, [initialValues]);
 
   useEffect(() => {
-    console.log("Initial values changed:", initialValues);
     if (initialValues.amount) {
       setOpen(true);
       // Set form values when editing existing finance
