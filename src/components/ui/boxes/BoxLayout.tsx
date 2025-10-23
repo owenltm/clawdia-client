@@ -31,24 +31,32 @@ export default function BoxLayout({ inventory }: BoxLayoutProps) {
   }
 
   return (
-    <div onClick={handleBoxClick} className={`flex flex-col items-left rounded-lg py-2 px-4 shadow-sm border w-48 ${getContainerStyles(inventory.status)}`}>
+    <div onClick={handleBoxClick} className={`flex flex-col justify-between items-left rounded-lg py-2 px-4 shadow-sm border w-48 min-h-28 ${getContainerStyles(inventory.status)}`}>
       {/* Label */}
-      <div className={`font-semibold mb-2 text-lg ${getTextStyles(inventory.status)}`}>
-        {inventory.label}
+      <div className="flex items-center justify-between">
+        <div className={`font-semibold text-lg ${getTextStyles(inventory.status)}`}>
+          {inventory.label}
+        </div>
+        <div className={`text-sm ${getTextStyles(inventory.status)}`}>
+          {inventory.content.length}/{inventory.maxFill}
+        </div>
       </div>
 
       {/* Description */}
-      {/* <div className={`${getTextStyles(inventory.status)} overflow-y-auto w-full`}>
-        {inventory.content.length > 0 && inventory.content.map((crab, index) => (
+      <div className={`${getTextStyles(inventory.status)} overflow-y-auto w-full`}>
+        {inventory.content.length > 0 && inventory.content.slice(0, 2).map((crab, index) => (
           <div key={index} className="w-full">
-            <div className={`flex justify-between gap-4 text-xl ${getTextStyles(inventory.status)}`}>
-              <div>{crab.weight}</div>
-              <div>{crab.supplier}</div>
+            <div className={`text-sm ${getTextStyles(inventory.status)}`}>
+              {parseInt(crab.weight.toString())}g - {new Date(crab.checkInDate).toLocaleDateString()} - {crab.supplier}
             </div>
-            <div className={`text-sm ${getTextStyles(inventory.status)}`}>{new Date(crab.checkInDate).toLocaleDateString()}</div>
           </div>
         ))}
-      </div> */}
+        {inventory.content.length > 2 && (
+          <div className={`text-sm italic ${getTextStyles(inventory.status)}`}>
+            ...and {inventory.content.length - 2} more
+          </div>
+        )}
+      </div>
     </div>
   );
 }

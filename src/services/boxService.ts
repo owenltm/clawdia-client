@@ -1,12 +1,15 @@
 "use server";
 
 import { requestHttp } from "@/lib/api";
-import { AddBoxContent, Box, CreateBoxParam, UpdateBoxContent } from "@/types/box.types";
+import { AddBoxContent, Box, BoxStatus, CreateBoxParam, UpdateBoxContent } from "@/types/box.types";
 
-export const fetchAllBoxes = async () => {
+export const viewBoxes = async (query: {
+  status?: BoxStatus
+}) => {
   const crabResponse = await requestHttp<Box[]>({
     path: "/core/boxes",
     method: "GET",
+    query: query
   });
   return crabResponse;
 }

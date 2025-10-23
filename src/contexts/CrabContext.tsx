@@ -30,7 +30,7 @@ export function CrabProvider({ children, onRefresh }: CrabProviderProps) {
   const contextValue = React.useMemo(() => ({
     focusedCrab,
     updateFocusedCrab,
-    refreshData
+    refreshData,
   }), [focusedCrab, updateFocusedCrab, refreshData]);
 
   return (

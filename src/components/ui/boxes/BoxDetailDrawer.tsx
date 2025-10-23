@@ -128,10 +128,11 @@ export const BoxSection = (
     }
 
     await onSave(boxId);
+    setIsEditing(false);
 
-    if (!initialValues.label) {
-      setIsEditing(false);
-    }
+    // if (!initialValues.label) {
+    //   setIsEditing(false);
+    // }
   }
 
   return <>

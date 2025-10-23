@@ -1,6 +1,8 @@
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select";
+import { viewBoxes } from "@/services/boxService";
+import { Box } from "@/types/box.types";
 import { Crab, CrabStatus } from "@/types/crab.types";
 import { useEffect, useState } from "react";
 
@@ -31,6 +33,8 @@ const suppliers: string[] = [
 
 export default function CrabForm({ initialValues, onSave, onCheckout, onCancel }: CrabFormProps) {
   const [loading, setLoading] = useState(false);
+  const [availableBoxes, setAvailableBoxes] = useState<Box[]>([]);
+
   const [form, setForm] = useState<CrabFormValues>({
     weight: initialValues.weight || 0,
     supplier: initialValues.supplier || "",
@@ -40,6 +44,14 @@ export default function CrabForm({ initialValues, onSave, onCheckout, onCancel }
     notes: initialValues.notes || "",
     boxId: initialValues.boxId || null
   });
+
+  useEffect(() => {
+    const fetchBoxes = async () => {
+      const data = await viewBoxes({});
+      setAvailableBoxes(data);
+    };
+    fetchBoxes();
+  }, []);
 
   useEffect(() => {
     setForm({
@@ -66,16 +78,16 @@ export default function CrabForm({ initialValues, onSave, onCheckout, onCancel }
     }
   }
 
-  const handleQuickAction = async (status: CrabStatus) => {
-    try {
-      setLoading(true);
-      await onCheckout?.(initialValues.boxId || null, { status, checkOutDate: new Date().toISOString().split("T")[0] });
-    } catch (err: any) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // const handleQuickAction = async (status: CrabStatus) => {
+  //   try {
+  //     setLoading(true);
+  //     await onCheckout?.(initialValues.boxId || null, { status, checkOutDate: new Date().toISOString().split("T")[0] });
+  //   } catch (err: any) {
+  //     console.error(err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -84,6 +96,16 @@ export default function CrabForm({ initialValues, onSave, onCheckout, onCancel }
 
   const handleSupplierChange = (value: string) => {
     setForm((prev) => ({ ...prev, supplier: value }));
+  };
+
+  const handleStatusChange = (value: string) => {
+    const status = CrabStatus[value as keyof typeof CrabStatus];
+
+    setForm((prev) => ({ ...prev, status }));
+  };
+
+  const handleBoxChange = (value: string) => {
+    setForm((prev) => ({ ...prev, boxId: value === "-1" ? null : Number(value) }));
   };
 
   return (
@@ -129,19 +151,54 @@ export default function CrabForm({ initialValues, onSave, onCheckout, onCancel }
           disabled={loading}
         />
       </div>
-      {
-        initialValues.status != CrabStatus.IN && (
-          <div>
-            <label htmlFor="checkOutDate" className="block mb-1">Check-out Date</label>
-            <Input
-              type="date"
-              name="checkOutDate"
-              value={form.checkOutDate || ""}
-              onChange={handleChange}
-              disabled={loading}
-            />
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <label htmlFor="status" className="block mb-1">Status</label>
+          <Select value={form.status.toUpperCase()} onValueChange={handleStatusChange}>
+            <SelectTrigger id="status" name="status">
+              <SelectValue placeholder="Select status..." />
+            </SelectTrigger>
+            <SelectContent align="end">
+              {Object.values(CrabStatus).map((status) => (
+                <SelectItem key={status} value={status.toUpperCase()}>
+                  {status}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {form.status === CrabStatus.IN && (
+          <div className="flex-1">
+            {/* TODO: MAYBE SELECT WITH SEARCH ? */}
+            <label htmlFor="boxLabel" className="block mb-1 mr-8">Box Label</label>
+            <Select value={form.boxId?.toString() || "-1"} onValueChange={handleBoxChange}>
+              <SelectTrigger id="boxLabel" name="boxLabel">
+                <SelectValue placeholder="Select box label..." />
+              </SelectTrigger>
+              <SelectContent align="end" className="max-h-64">
+                {availableBoxes.map((box) => (
+                  <SelectItem key={box.id} disabled={box.status !== "empty"} value={box.id.toString()}>
+                    {box.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
+        {
+          form.status !== CrabStatus.IN && (
+            <div className="flex-1">
+              <label htmlFor="checkOutDate" className="block mb-1">Check-out Date</label>
+              <Input
+                type="date"
+                name="checkOutDate"
+                value={form.checkOutDate || ""}
+                onChange={handleChange}
+                disabled={loading}
+              />
+            </div>
+          )}
+      </div>
       <div>
         <label htmlFor="notes" className="block mb-1">Notes</label>
         <Input
@@ -152,7 +209,7 @@ export default function CrabForm({ initialValues, onSave, onCheckout, onCancel }
           disabled={loading}
         />
       </div>
-      <div>
+      {/* <div>
         <div className="w-full flex gap-4">
           <Button
             className="flex-1"
@@ -173,7 +230,7 @@ export default function CrabForm({ initialValues, onSave, onCheckout, onCancel }
             Mark dead
           </Button>
         </div>
-      </div>
+      </div> */}
       <div className="flex gap-4">
         <Button
           type="button"
