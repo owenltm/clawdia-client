@@ -8,6 +8,7 @@ import React, { createContext, ReactNode, useContext, useEffect } from 'react';
 
 type AuthContextType = {
   currentUser?: User | null;
+  refreshUser: () => Promise<void>;
   logout: () => void;
 }
 
@@ -29,22 +30,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return;
     }
 
-    const getCurrentUser = async () => {
-      try {
-        const currentUserResponse = await fetchCurrentUser();
-        if (currentUserResponse.success) {
-          setCurrentUser(currentUserResponse.data as User);
-        } else {
-          setCurrentUser(null);
-        }
-      } catch (error) {
-        console.error("Failed to fetch current user:", error);
+    refreshUser();
+  }, []);
+
+  const refreshUser = async () => {
+    try {
+      const currentUserResponse = await fetchCurrentUser();
+      if (currentUserResponse.success) {
+        setCurrentUser(currentUserResponse.data as User);
+      } else {
         setCurrentUser(null);
       }
-    };
-
-    getCurrentUser();
-  }, []);
+    } catch (error) {
+      console.error("Failed to fetch current user:", error);
+      setCurrentUser(null);
+    }
+  };
 
   const logout = () => {
     useCookies.remove("auth_token");
@@ -55,6 +56,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const contextValue = React.useMemo(() => ({
     currentUser,
+    refreshUser,
     logout
   }), [currentUser]);
 

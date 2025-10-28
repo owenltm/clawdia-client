@@ -6,12 +6,14 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Input } from "@/components/Input";
 import { Label } from "@/components/Label";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { useCookies } from "@/hooks/useCookies";
 import { login } from "@/services/authService";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { refreshUser } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +30,7 @@ export default function LoginPage() {
     const result = await login({ username, password });
     if (result.success) {
       useCookies.set("auth_token", (result.data! as any).token);
+      await refreshUser();
 
       router.replace("/overview");
     } else {
