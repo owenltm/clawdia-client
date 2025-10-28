@@ -14,11 +14,11 @@ import {
   DropdownMenuSubMenuTrigger,
   DropdownMenuTrigger,
 } from "@/components/Dropdown"
+import { useAuthContext } from "@/contexts/AuthContext"
 import {
-  RiArrowRightUpLine,
   RiComputerLine,
   RiMoonLine,
-  RiSunLine,
+  RiSunLine
 } from "@remixicon/react"
 import { useTheme } from "next-themes"
 import * as React from "react"
@@ -32,11 +32,21 @@ export function DropdownUserProfile({
   children,
   align = "start",
 }: DropdownUserProfileProps) {
+  const { currentUser, logout } = useAuthContext();
+
   const [mounted, setMounted] = React.useState(false)
   const { theme, setTheme } = useTheme()
   React.useEffect(() => {
     setMounted(true)
   }, [])
+
+  const getUserName = (): string => {
+    return currentUser?.username || "unknown.user";
+  }
+
+  const handleSignOut = async () => {
+    logout();
+  }
 
   if (!mounted) {
     return null
@@ -46,7 +56,7 @@ export function DropdownUserProfile({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent align={align}>
-          <DropdownMenuLabel>emma.stone@acme.com</DropdownMenuLabel>
+          <DropdownMenuLabel>{getUserName()}</DropdownMenuLabel>
           <DropdownMenuGroup>
             <DropdownMenuSubMenu>
               <DropdownMenuSubMenuTrigger>Theme</DropdownMenuSubMenuTrigger>
@@ -92,7 +102,7 @@ export function DropdownUserProfile({
             </DropdownMenuSubMenu>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuGroup>
+          {/* <DropdownMenuGroup>
             <DropdownMenuItem>
               Changelog
               <RiArrowRightUpLine
@@ -114,10 +124,10 @@ export function DropdownUserProfile({
                 aria-hidden="true"
               />
             </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
+          </DropdownMenuGroup> */}
+          {/* <DropdownMenuSeparator /> */}
           <DropdownMenuGroup>
-            <DropdownMenuItem>Sign out</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

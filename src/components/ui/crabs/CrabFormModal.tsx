@@ -53,6 +53,7 @@ export function CrabFormModal({
       }
 
       updateFocusedCrab(null);
+      setOpen(false);
       setError(null);
       refreshData();
     } catch (err: any) {

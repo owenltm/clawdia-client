@@ -1,10 +1,10 @@
+import { AuthProvider } from "@/contexts/AuthContext"
 import type { Metadata } from "next"
 import { ThemeProvider } from "next-themes"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { siteConfig } from "./siteConfig"
 
-import { Sidebar } from "@/components/ui/navigation/Sidebar"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -50,8 +50,9 @@ export default function RootLayout({
       >
         <div className="mx-auto">
           <ThemeProvider defaultTheme="system" attribute="class">
-            <Sidebar />
-            <main className="lg:pl-72">{children}</main>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
           </ThemeProvider>
         </div>
       </body>

@@ -1,3 +1,7 @@
+"use server";
+
+import { cookies } from "next/headers";
+
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 interface FetchOptions<TBody = unknown> {
@@ -16,6 +20,9 @@ export async function requestHttp<TResponse, TBody = unknown>(
   options: FetchOptions<TBody>
 ): Promise<TResponse> {
   try {
+    const cookieStore = await cookies();
+    const tokenCookie = cookieStore.get("auth_token");
+
     const { path, method = "GET", query, body, headers, signal } = options;
 
     // Build query string
@@ -36,6 +43,7 @@ export async function requestHttp<TResponse, TBody = unknown>(
       headers: {
         "Content-Type": "application/json",
         ...(API_KEY ? { "x-api-key": API_KEY } : {}),
+        ...(tokenCookie ? { Authorization: `Bearer ${tokenCookie.value}` } : {}),
         ...headers,
       },
       signal,

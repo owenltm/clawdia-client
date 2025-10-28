@@ -7,21 +7,33 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/Dropdown"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/Select"
-import { Tooltip } from "@/components/Tooltip"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select"
 import { ModalAddUser } from "@/components/ui/settings/ModalAddUser"
-import { invitedUsers, roles, users } from "@/data/data"
+import { useAuthContext } from "@/contexts/AuthContext"
+import { getUserFullName, getUserInitials } from "@/lib/authUtils"
+import { getAllUsers } from "@/services/authService"
+import { roles, User } from "@/types/auth.types"
 import { RiAddLine, RiMore2Fill } from "@remixicon/react"
+import { useEffect, useState } from "react"
 
 export const dynamic = "force-dynamic";
 
 export default function Users() {
+  const { currentUser } = useAuthContext();
+  const [users, setUsers] = useState<User[]>([]);
+
+  const loadUsers = async () => {
+    const { data: users } = await getAllUsers();
+
+    setUsers(users as User[]);
+  }
+
+  useEffect(() => {
+    if (currentUser) {
+      loadUsers();
+    }
+  }, [currentUser]);
+
   return (
     <>
       <section aria-labelledby="existing-users">
@@ -50,7 +62,7 @@ export default function Users() {
         >
           {users.map((user) => (
             <li
-              key={user.name}
+              key={user.id}
               className="flex items-center justify-between gap-x-6 py-2.5"
             >
               <div className="flex items-center gap-x-4 truncate">
@@ -58,66 +70,35 @@ export default function Users() {
                   className="hidden size-9 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-xs text-gray-700 sm:flex dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300"
                   aria-hidden="true"
                 >
-                  {user.initials}
+                  {getUserInitials(user)}
                 </span>
                 <div className="truncate">
                   <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-50">
-                    {user.name}
+                    {getUserFullName(user)}
                   </p>
-                  <p className="truncate text-xs text-gray-500">{user.email}</p>
+                  <p className="truncate text-xs text-gray-500">{user.email || "No Email"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {user.role === "admin" ? (
-                  <Tooltip
-                    content="A workspace must have at least one admin"
-                    className="max-w-44 text-xs"
-                    sideOffset={5}
-                    triggerAsChild={true}
-                  >
-                    <div>
-                      <Select
-                        defaultValue={user.role}
-                        disabled={user.role === "admin"}
+                <Select
+                  defaultValue={user.role}
+                  disabled={user.role == "admin"}
+                >
+                  <SelectTrigger className="h-8 w-32">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent align="end">
+                    {roles.map((role) => (
+                      <SelectItem
+                        key={role.value}
+                        value={role.value}
+                        disabled={role.value === "admin"}
                       >
-                        <SelectTrigger className="h-8 w-32">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent align="end">
-                          {roles.map((role) => (
-                            <SelectItem
-                              key={role.value}
-                              value={role.value}
-                              disabled={role.value === "admin"}
-                            >
-                              {role.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </Tooltip>
-                ) : (
-                  <Select
-                    defaultValue={user.role}
-                    disabled={user.role === "admin"}
-                  >
-                    <SelectTrigger className="h-8 w-32">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent align="end">
-                      {roles.map((role) => (
-                        <SelectItem
-                          key={role.value}
-                          value={role.value}
-                          disabled={role.value === "admin"}
-                        >
-                          {role.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -131,12 +112,12 @@ export default function Users() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-36">
-                    <DropdownMenuItem disabled={user.role === "admin"}>
+                    <DropdownMenuItem disabled={currentUser?.role !== "admin"}>
                       View details
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-red-600 dark:text-red-500"
-                      disabled={user.role === "admin"}
+                      disabled={currentUser?.role !== "admin"}
                     >
                       Delete
                     </DropdownMenuItem>
@@ -147,7 +128,7 @@ export default function Users() {
           ))}
         </ul>
       </section>
-      <section className="mt-12" aria-labelledby="pending-invitations">
+      {/* <section className="mt-12" aria-labelledby="pending-invitations">
         <h2
           id="pending-invitations"
           className="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50"
@@ -221,7 +202,7 @@ export default function Users() {
             </li>
           ))}
         </ul>
-      </section>
+      </section> */}
     </>
   )
 }
