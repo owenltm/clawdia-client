@@ -1,6 +1,7 @@
 "use server";
 
 import { requestHttp } from "@/lib/api";
+import { AddUser } from "@/types/auth.types";
 
 export const login = async (credentials: { username: string; password: string }) => {
   try {
@@ -39,5 +40,19 @@ export const getAllUsers = async () => {
   } catch (error: any) {
     console.error('Error fetching all users:', error);
     return { success: false, error: error.message || "Failed to fetch all users" };
+  }
+}
+
+export const addUser = async (userData: AddUser) => {
+  try {
+    const response = await requestHttp({
+      path: "/core/auth/user",
+      method: "POST",
+      body: userData,
+    });
+    return { success: true, data: response };
+  } catch (error: any) {
+    console.error('Error adding user:', error);
+    return { success: false, error: error.message || "Failed to add user" };
   }
 }

@@ -15,3 +15,13 @@ export const roles = [
   { value: "admin", label: "Admin" },
   { value: "user", label: "User" },
 ]
+
+export type AddUser = {
+  username: string;
+  role: string;
+  firstName: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  password: string;
+}

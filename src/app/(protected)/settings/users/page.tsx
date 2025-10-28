@@ -26,6 +26,7 @@ export default function Users() {
     const { data: users } = await getAllUsers();
 
     setUsers(users as User[]);
+    return users
   }
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function Users() {
               Workspace administrators can add, manage, and remove users.
             </p>
           </div>
-          <ModalAddUser>
+          <ModalAddUser onUserAdded={loadUsers}>
             <Button className="mt-4 w-full gap-2 sm:mt-0 sm:w-fit">
               <RiAddLine className="-ml-1 size-4 shrink-0" aria-hidden="true" />
               Add user
