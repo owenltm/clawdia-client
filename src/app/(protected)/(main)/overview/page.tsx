@@ -57,12 +57,10 @@ export default async function Overview() {
             label="Total Crabs in Stock"
             value={inventoryOverviewData.crabInStock.toString()}
           />
-          {/* TODO: Other metrics ? */}
           <DashboardMetricCard
             label="Total Box"
             value={inventoryOverviewData.BoxStatus.total.toString()}
           />
-          {/* TODO: Make donut chart */}
           <DashboardMetricCard
             label="Box Occupancy"
             value={inventoryOverviewData.occupancyRate.toString()}

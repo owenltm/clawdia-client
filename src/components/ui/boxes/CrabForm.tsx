@@ -169,7 +169,6 @@ export default function CrabForm({ initialValues, onSave, onCancel }: CrabFormPr
         </div>
         {form.status === CrabStatus.IN && (
           <div className="flex-1">
-            {/* TODO: MAYBE SELECT WITH SEARCH ? */}
             <label htmlFor="boxLabel" className="block mb-1 mr-8">Box Label</label>
             <Select value={form.boxId?.toString() || "-1"} onValueChange={handleBoxChange}>
               <SelectTrigger id="boxLabel" name="boxLabel">

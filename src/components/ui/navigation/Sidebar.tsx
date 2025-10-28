@@ -65,7 +65,6 @@ export function Sidebar() {
             </ul>
           </nav>
           <div className="mt-auto">
-            {/* TODO: UPDATE PROFILE INFO */}
             <UserProfileDesktop />
           </div>
         </aside>

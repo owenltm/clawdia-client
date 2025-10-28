@@ -45,7 +45,6 @@ export function CrabFormModal({
   const handleSave = async (id: number | null, values: CrabFormValues) => {
     try {
       if (!id) {
-        // TODO: NEED TO FIGURE OUT CRAB CREATION FLOW
         await createCrab(values as NewCrab);
       } else {
         // console.log("Updating crab with ID:", id, "and values:", values);

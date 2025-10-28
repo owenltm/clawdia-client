@@ -18,7 +18,6 @@ export default function CrabTable({ crabs }: CrabTableProps) {
   }
 
   const onDeleteActionClicked = (id: number) => {
-    // TODO: Implement delete action
     console.log("Delete action clicked for crab with ID:", id);
   }
 
