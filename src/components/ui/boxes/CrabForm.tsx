@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 export type CrabFormProps = {
   initialValues: Partial<Crab>;
   onSave?: (id: number | null, values: CrabFormValues) => Promise<void>;
-  onCheckout?: (boxId: number | null, values: { status: CrabStatus, checkOutDate: string }) => Promise<void>;
   onCancel?: () => void;
 }
 

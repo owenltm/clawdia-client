@@ -1,3 +1,5 @@
+"use client";
+
 import { checkInCrab, checkOutCrab, createBox, updateBox } from '@/services/boxService';
 import { updateCrab } from '@/services/crabService';
 import { AddBoxContent, Box, CreateBoxParam, Inventory, UpdateBoxContent } from '@/types/box.types';
@@ -6,6 +8,7 @@ import React, { createContext, ReactNode, useContext } from 'react';
 
 type BoxContextType = {
   focusedBox: Inventory | null;
+  refreshData: () => void;
   updateFocusedBox: (box: Inventory | null) => void;
   checkInCrab: (boxId: number, content: AddBoxContent) => Promise<any>;
   checkOutCrab: (boxId: number, content: UpdateBoxContent) => Promise<any>;
@@ -16,16 +19,23 @@ type BoxContextType = {
 
 type BoxProviderProps = {
   children: ReactNode;
+  onRefresh?: () => void;
 }
 
 const BoxContext = createContext<BoxContextType | undefined>(undefined);
 
-export function BoxProvider({ children }: BoxProviderProps) {
+export function BoxProvider({ children, onRefresh }: BoxProviderProps) {
   const [focusedBox, setFocusedBox] = React.useState<Inventory | null>(null);
 
   const updateFocusedBox = React.useCallback((box: Inventory | null) => {
     setFocusedBox(box);
   }, []);
+
+  const refreshData = React.useCallback(() => {
+    if (onRefresh) {
+      onRefresh();
+    }
+  }, [onRefresh]);
 
   const contextValue = React.useMemo(() => ({
     focusedBox,
@@ -35,7 +45,8 @@ export function BoxProvider({ children }: BoxProviderProps) {
     updateCrab,
     updateBox,
     createBox,
-  }), [focusedBox, updateFocusedBox]);
+    refreshData,
+  }), [focusedBox, updateFocusedBox, refreshData]);
 
   return (
     <BoxContext.Provider value={contextValue}>

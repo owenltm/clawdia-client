@@ -14,7 +14,7 @@ import { checkInCrab } from "@/services/boxService";
 import { updateCrab } from "@/services/crabService";
 import { fetchInventoryByBoxId } from "@/services/inventoryService";
 import { Box } from "@/types/box.types";
-import { Crab, CrabStatus } from "@/types/crab.types";
+import { Crab } from "@/types/crab.types";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BoxForm from "./BoxForm";
@@ -39,7 +39,6 @@ export function BoxDetailDrawer({
   description,
 }: BoxDetailDrawerProps) {
   const router = useRouter();
-
   const [open, setOpen] = useState(false);
   const { focusedBox, updateFocusedBox } = useBoxContext();
 
@@ -186,7 +185,6 @@ export const CrabSection = (
     onSave: (boxId: number | null) => Promise<void> | void
   }
 ) => {
-  const { checkOutCrab } = useBoxContext();
   const [crabForms, setCrabForms] = useState<Partial<Crab>[]>(initialValues || []);
   const [isEditing, setIsEditing] = useState<boolean[]>(initialValues.map((c) => c.weight ? false : true));
   const crabListRef = useRef<HTMLDivElement>(null);
@@ -201,17 +199,7 @@ export const CrabSection = (
     } else {
       await updateCrab(id, values);
     }
-  }
 
-  const handleCrabCheckout = async (boxId: number | null, values: { status: CrabStatus, checkOutDate: string }) => {
-    if (!boxId) {
-      return;
-    }
-
-    // console.log("Checking out crab from box:", boxId, values);
-
-    const response = await checkOutCrab(boxId, values);
-    console.log("Check out response:", response);
     onSave(boxId);
   }
 
@@ -257,7 +245,6 @@ export const CrabSection = (
                     onSave(null);
                     toggleIsEditing(index, false);
                   }}
-                  onCheckout={handleCrabCheckout}
                   onCancel={() => toggleIsEditing(index, false)}
 
                 />

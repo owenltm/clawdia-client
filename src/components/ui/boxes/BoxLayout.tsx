@@ -1,3 +1,5 @@
+"use client";
+
 import { useBoxContext } from "@/contexts/BoxContext";
 import { Inventory } from "@/types/box.types";
 

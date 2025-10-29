@@ -47,18 +47,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const logout = () => {
+  const logout = React.useCallback(() => {
     useCookies.remove("auth_token");
     setCurrentUser(null);
 
-    router.replace("/login");
-  }
+    router.push("/login");
+  }, [router]);
 
   const contextValue = React.useMemo(() => ({
     currentUser,
     refreshUser,
     logout
-  }), [currentUser]);
+  }), [currentUser, logout]);
 
   return (
     <AuthContext.Provider value={contextValue}>
