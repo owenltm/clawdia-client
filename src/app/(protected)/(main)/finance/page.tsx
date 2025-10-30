@@ -7,12 +7,9 @@ import useConfirmModal from "@/hooks/useConfirmModal";
 import { createFinance, deleteFinance, fetchAllFinances, updateFinance } from "@/services/financeService";
 import { Finance, FinanceFormValues } from "@/types/finance.types";
 import { RiAddLine } from "@remixicon/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-  const router = useRouter();
-
   const [finances, setFinances] = useState<Finance[] | null>(null);
   const [focusedFinance, setFocusedFinance] = useState<FinanceFormValues | {}>({});
 
