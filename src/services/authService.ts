@@ -56,3 +56,30 @@ export const addUser = async (userData: AddUser) => {
     return { success: false, error: error.message || "Failed to add user" };
   }
 }
+
+export const updateUser = async (userId: number, userData: Partial<AddUser>) => {
+  try {
+    const response = await requestHttp({
+      path: `/core/auth/user/${userId}`,
+      method: "PATCH",
+      body: userData,
+    });
+    return { success: true, data: response };
+  } catch (error: any) {
+    console.error('Error updating user:', error);
+    return { success: false, error: error.message || "Failed to update user" };
+  }
+}
+
+export const deleteUser = async (userId: string) => {
+  try {
+    const response = await requestHttp({
+      path: `/core/auth/user/${userId}`,
+      method: "DELETE",
+    });
+    return { success: true, data: response };
+  } catch (error: any) {
+    console.error('Error deleting user:', error);
+    return { success: false, error: error.message || "Failed to delete user" };
+  }
+}

@@ -18,13 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/Select"
-import { addUser } from "@/services/authService"
-import { AddUser, roles } from "@/types/auth.types"
-import { useState } from "react"
+import { useUserContext } from "@/contexts/UserContext"
+import { addUser, updateUser } from "@/services/authService"
+import { AddUser, roles, User } from "@/types/auth.types"
+import { useEffect, useState } from "react"
 
 export type ModalAddUserProps = {
-  children: React.ReactNode
-  onUserAdded?: () => void
+  children: React.ReactNode,
+  onUserAdded?: () => void,
+  title?: string,
+  description?: string,
 }
 
 export type UserFormValues = {
@@ -40,6 +43,10 @@ export type UserFormValues = {
 export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { focusedUser, updateFocusedUser } = useUserContext();
+
+  const initialValues: User | null = focusedUser;
+
   const [form, setForm] = useState<UserFormValues>({
     username: undefined,
     role: undefined,
@@ -62,6 +69,30 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
     });
   }
 
+  useEffect(() => {
+    setOpen(!!focusedUser);
+
+    if (focusedUser) {
+      setForm({
+        username: initialValues?.username || undefined,
+        role: initialValues?.role || undefined,
+        firstName: initialValues?.firstName || undefined,
+        lastName: initialValues?.lastName || undefined,
+        email: initialValues?.email || undefined,
+        phone: initialValues?.phone || undefined,
+        password: initialValues?.password || undefined,
+      });
+    }
+  }, [focusedUser, initialValues]);
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      updateFocusedUser(null);
+      resetForm();
+    }
+    setOpen(open);
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -76,7 +107,16 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
     setLoading(true);
 
     try {
-      const response = await addUser(form as AddUser);
+      let response;
+      if (!initialValues) {
+        response = await addUser(form as AddUser);
+      } else {
+        response = await updateUser(initialValues.id, form as AddUser);
+      }
+
+      if (!response) {
+        return;
+      }
 
       if (response.success) {
         resetForm();
@@ -91,14 +131,14 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <form onSubmit={handleAddUser}>
           <DialogHeader>
-            <DialogTitle>Invite people to your workspace</DialogTitle>
+            <DialogTitle>{initialValues ? "Edit user" : "Add user to your workspace"}</DialogTitle>
             <DialogDescription className="mt-1 text-sm leading-6">
-              With free plan, you can add up to 10 users to each workspace.
+              {initialValues ? "Edit user details below." : "Fill in the details below to add a new user."}
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-6">
@@ -123,7 +163,7 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
               <Label htmlFor="role" className="font-medium">
                 Role
               </Label>
-              <Select value={form.role || undefined} onValueChange={handleRoleChange} required disabled={loading}>
+              <Select value={form.role || ""} onValueChange={handleRoleChange} required disabled={loading}>
                 <SelectTrigger
                   name="role"
                   id="role"
@@ -208,24 +248,26 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
                 disabled={loading}
               />
             </div>
-            <div className="col-span-full">
-              {/* <Label htmlFor="email" className="font-medium">
+            {!initialValues && (
+              <div className="col-span-full">
+                {/* <Label htmlFor="email" className="font-medium">
                           Email
                         </Label> */}
-              <label htmlFor="defaultPassword" className="block mb-1">Default Password</label>
-              <Input
-                type="password"
-                id="defaultPassword"
-                name="password"
-                placeholder="••••••••"
-                className="mt-2"
-                minLength={8}
-                value={form.password || ""}
-                onChange={handleChange}
-                required
-                disabled={loading}
-              />
-            </div>
+                <label htmlFor="defaultPassword" className="block mb-1">Default Password</label>
+                <Input
+                  type="password"
+                  id="defaultPassword"
+                  name="password"
+                  placeholder="••••••••"
+                  className="mt-2"
+                  minLength={8}
+                  value={form.password || ""}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter className="mt-6">
             <DialogClose asChild>
@@ -233,11 +275,11 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
                 className="mt-2 w-full sm:mt-0 sm:w-fit"
                 variant="secondary"
               >
-                Go back
+                Cancel
               </Button>
             </DialogClose>
             <Button type="submit" className="w-full sm:w-fit">
-              Add user
+              {loading ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
         </form>

@@ -11,7 +11,7 @@ import {
 } from "@/components/Dialog";
 import { useState } from "react";
 
-export type ConfirmDeleteModalProps = {
+export type ConfirmModalProps = {
   children: React.ReactNode;
   title?: string;
   description?: string;
@@ -20,14 +20,14 @@ export type ConfirmDeleteModalProps = {
   cancelText?: string;
 };
 
-export function ConfirmDeleteModal({
+export function ConfirmModal({
   children,
-  title = "Confirm Delete",
-  description = "Are you sure you want to delete this item? This action cannot be undone.",
+  title = "Confirm Action",
+  description = "Are you sure you want to proceed with this action? This action cannot be undone.",
   onConfirm,
-  confirmText = "Delete",
+  confirmText = "Confirm",
   cancelText = "Cancel",
-}: ConfirmDeleteModalProps) {
+}: ConfirmModalProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -2,7 +2,7 @@ import { Button } from "@/components/Button";
 import { Finance } from "@/types/finance.types";
 import { RiDeleteBinLine, RiEditLine } from "@remixicon/react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { ConfirmDeleteModal } from "../ConfirmDeleteModal";
+import { ConfirmModal } from "../ConfirmModal";
 import { DataTableColumnHeader } from "../data-table/DataTableColumnHeader";
 
 const columnHelper = createColumnHelper<Finance>()
@@ -110,7 +110,7 @@ export function getFinanceColumns({ onFocusFinanceAction, onDeleteFinanceAction 
             <RiEditLine className="-ml-1 size-4 shrink-0" aria-hidden="true" />
           </Button>
 
-          <ConfirmDeleteModal
+          <ConfirmModal
             onConfirm={async () => {
               onDeleteFinanceAction?.(row.original.id);
             }}
@@ -122,7 +122,7 @@ export function getFinanceColumns({ onFocusFinanceAction, onDeleteFinanceAction 
             >
               <RiDeleteBinLine className="-ml-1 size-4 shrink-0" aria-hidden="true" />
             </Button>
-          </ConfirmDeleteModal>
+          </ConfirmModal>
         </div>
       ),
       meta: {
