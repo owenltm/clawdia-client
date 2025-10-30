@@ -151,7 +151,7 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
                 type="text"
                 id="username"
                 name="username"
-                placeholder="emma"
+
                 value={form.username || ""}
                 onChange={handleChange}
                 className="mt-2"
@@ -169,7 +169,7 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
                   id="role"
                   className="mt-2"
                 >
-                  <SelectValue placeholder="Select role..." />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {roles.map((role) => (
@@ -192,7 +192,6 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
                 type="text"
                 id="first-name"
                 name="firstName"
-                placeholder="Emma"
                 className="mt-2"
                 value={form.firstName || ""}
                 onChange={handleChange}
@@ -209,7 +208,6 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
                 type="text"
                 id="last-name"
                 name="lastName"
-                placeholder="Stone"
                 className="mt-2"
                 value={form.lastName || ""}
                 onChange={handleChange}
@@ -225,7 +223,6 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
                 type="email"
                 id="email"
                 name="email"
-                placeholder="emma@acme.com"
                 className="mt-2"
                 value={form.email || ""}
                 onChange={handleChange}
@@ -241,7 +238,6 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
                 type="tel"
                 id="phone"
                 name="phone"
-                placeholder="+62 ..."
                 className="mt-2"
                 value={form.phone || ""}
                 onChange={handleChange}
@@ -258,7 +254,6 @@ export function ModalAddUser({ children, onUserAdded }: ModalAddUserProps) {
                   type="password"
                   id="defaultPassword"
                   name="password"
-                  placeholder="••••••••"
                   className="mt-2"
                   minLength={8}
                   value={form.password || ""}

@@ -4,6 +4,7 @@ import { Card } from "@/components/Card"
 import { Divider } from "@/components/Divider"
 import { RiExternalLinkLine } from "@remixicon/react"
 
+import { UpdatePasswordForm } from "@/components/ui/settings/UpdatePasswordForm"
 import { UserProfileForm } from "@/components/ui/settings/UserProfileForm"
 
 
@@ -15,6 +16,10 @@ export default function General() {
       <div className="space-y-10">
         <section aria-labelledby="personal-information">
           <UserProfileForm />
+        </section>
+        <Divider />
+        <section aria-labelledby="security-settings">
+          <UpdatePasswordForm />
         </section>
         {/* <Divider />
         <section aria-labelledby="notification-settings">

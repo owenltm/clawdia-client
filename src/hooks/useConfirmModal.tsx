@@ -9,21 +9,28 @@ type useConfirmModalProps = {
   cancelText?: string;
 }
 
-export default function useConfirmModal({
-  title = "Confirm Action",
-  description = "Are you sure you want to proceed with this action? This action cannot be undone.",
-  confirmText = "Confirm",
-  cancelText = "Cancel",
-}: useConfirmModalProps) {
+export default function useConfirmModal(params?: useConfirmModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [callback, setCallback] = useState<() => Promise<void> | void>(() => { });
 
+  const {
+    title = "Confirm Action",
+    description = "Are you sure you want to proceed with this action? This action cannot be undone.",
+    confirmText = "Confirm",
+    cancelText = "Cancel",
+  } = params || {};
+
   const handleConfirm = async () => {
     setLoading(true);
-    await callback();
+    try {
+      await callback();
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error in confirm callback:", error);
+    }
+
     setLoading(false);
-    setIsOpen(false);
   };
 
   const modal = () => {

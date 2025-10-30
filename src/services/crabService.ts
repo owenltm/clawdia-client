@@ -38,3 +38,16 @@ export const updateCrab = async (crabId: number, data: Partial<Crab>) => {
     throw error;
   }
 };
+
+export const deleteCrab = async (crabId: number) => {
+  try {
+    const response = await requestHttp({
+      path: `/core/crabs/${crabId}`,
+      method: "DELETE",
+    });
+    return response;
+  } catch (error) {
+    console.error("Error deleting crab:", error);
+    throw error;
+  }
+};

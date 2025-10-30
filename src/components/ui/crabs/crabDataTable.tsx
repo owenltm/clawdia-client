@@ -2,6 +2,8 @@
 
 import { DataTable } from "@/components/ui/data-table/DataTable";
 import { useCrabContext } from "@/contexts/CrabContext";
+import useConfirmModal from "@/hooks/useConfirmModal";
+import { deleteCrab } from "@/services/crabService";
 import { Crab } from "@/types/crab.types";
 import { getCrabColumns } from "./crabColumns";
 
@@ -11,6 +13,7 @@ interface CrabTableProps {
 
 export default function CrabTable({ crabs }: CrabTableProps) {
   const { updateFocusedCrab } = useCrabContext();
+  const { modal, open } = useConfirmModal();
 
   const onEditActionClicked = (id: number) => {
     const crabToEdit = crabs.find((crab) => crab.id === id) || null;
@@ -18,13 +21,18 @@ export default function CrabTable({ crabs }: CrabTableProps) {
   }
 
   const onDeleteActionClicked = (id: number) => {
-    console.log("Delete action clicked for crab with ID:", id);
+    open(async () => {
+      await deleteCrab(id);
+    });
   }
 
   return (
-    <DataTable columns={getCrabColumns({
-      onEditActionClicked,
-      onDeleteActionClicked
-    })} data={crabs} />
+    <>
+      {modal()}
+      <DataTable columns={getCrabColumns({
+        onEditActionClicked,
+        onDeleteActionClicked
+      })} data={crabs} />
+    </>
   );
 }

@@ -3,7 +3,8 @@
 import { Button } from "@/components/Button";
 import { FinanceFormModal } from "@/components/ui/finances/FinanceFormModal";
 import FinanceDataTable from "@/components/ui/finances/financeDataTable";
-import { createFinance, fetchAllFinances, updateFinance } from "@/services/financeService";
+import useConfirmModal from "@/hooks/useConfirmModal";
+import { createFinance, deleteFinance, fetchAllFinances, updateFinance } from "@/services/financeService";
 import { Finance, FinanceFormValues } from "@/types/finance.types";
 import { RiAddLine } from "@remixicon/react";
 import { useRouter } from "next/navigation";
@@ -15,6 +16,8 @@ export default function Page() {
   const [finances, setFinances] = useState<Finance[] | null>(null);
   const [focusedFinance, setFocusedFinance] = useState<FinanceFormValues | {}>({});
 
+  const { modal, open } = useConfirmModal();
+
   const onFocusFinance = (id: number) => {
     const finance = finances?.find(f => f.id === id);
     if (!finance) { return };
@@ -22,9 +25,13 @@ export default function Page() {
     setFocusedFinance(finance);
   }
 
-  const deleteFinance = async (id: number) => {
-    await deleteFinance(id);
-    router.refresh();
+  const onDeleteFinance = async (id: number) => {
+    open(async () => {
+      await deleteFinance(id);
+      console.log("Finance deleted");
+
+      fetchFinanceData();
+    });
   }
 
   const submitForm = async (values: FinanceFormValues) => {
@@ -66,8 +73,9 @@ export default function Page() {
             Add finance
           </Button>
         </FinanceFormModal>
+        {modal()}
       </div>
-      <FinanceDataTable onDeleteFinanceAction={deleteFinance} onFocusFinanceAction={onFocusFinance} finances={finances || []} />
+      <FinanceDataTable onDeleteFinanceAction={onDeleteFinance} onFocusFinanceAction={onFocusFinance} finances={finances || []} />
     </div>
   </>
 }

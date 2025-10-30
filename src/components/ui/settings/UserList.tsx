@@ -17,7 +17,7 @@ export default function UserList({
   const { currentUser } = useAuthContext();
   const { updateFocusedUser, refreshData } = useUserContext();
 
-  const { modal, open } = useConfirmModal({});
+  const { modal, open } = useConfirmModal();
 
   const handleDeleteUser = async (userId: string) => {
     const response = await deleteUser(userId);
@@ -98,8 +98,8 @@ export default function UserList({
                 <DropdownMenuItem
                   className="text-red-600 dark:text-red-500"
                   onClick={() => {
-                    open(() => {
-                      handleDeleteUser(user.id.toString());
+                    open(async () => {
+                      await handleDeleteUser(user.id.toString());
                     });
                   }}
                   disabled={currentUser?.role !== "admin"}

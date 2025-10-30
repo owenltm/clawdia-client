@@ -4,13 +4,42 @@ import { Label } from "@/components/Label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select"
 import { useAuthContext } from "@/contexts/AuthContext"
 import { roles } from "@/types/auth.types"
+import { useState } from "react"
+
+type UserProfileValues = {
+  firstName: string | undefined;
+  lastName: string | undefined;
+  email: string | undefined;
+  phone: string | undefined;
+}
 
 export const UserProfileForm = () => {
-
   const { currentUser } = useAuthContext();
 
+  const [form, setForm] = useState<UserProfileValues>({
+    firstName: currentUser?.firstName || undefined,
+    lastName: currentUser?.lastName || undefined,
+    email: currentUser?.email || undefined,
+    phone: currentUser?.phone || undefined,
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      console.log("Updating user profile with data:", form);
+    } catch (error) {
+      console.error("Error update profile:", error);
+    }
+  };
+
   return (
-    <form>
+    <form onSubmit={handleUpdateUser}>
       <div className="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
         <div>
           <h2
@@ -29,13 +58,11 @@ export const UserProfileForm = () => {
               {/* <Label htmlFor="first-name" className="font-medium">
                 First name
               </Label> */}
-              <label htmlFor="first-name" className="block mb-1">First name</label>
+              <label htmlFor="username" className="block mb-1">Username</label>
               <Input
                 type="text"
-                id="first-name"
-                name="first-name"
-                autoComplete="given-name"
-                placeholder="Emma"
+                id="username"
+                name="username"
                 value={currentUser?.username || ""}
                 onChange={() => { }}
                 className="mt-2"
@@ -47,7 +74,7 @@ export const UserProfileForm = () => {
               <Label htmlFor="role" className="font-medium">
                 Role
               </Label>
-              <Select value={currentUser?.role || ""} onValueChange={() => { }} required>
+              <Select value={currentUser?.role || ""} required disabled>
                 <SelectTrigger
                   name="role"
                   id="role"
@@ -75,12 +102,10 @@ export const UserProfileForm = () => {
               <Input
                 type="text"
                 id="first-name"
-                name="first-name"
-                autoComplete="given-name"
-                placeholder="Emma"
+                name="firstName"
                 className="mt-2"
-                value={currentUser?.firstName || ""}
-                onChange={() => { }}
+                value={form.firstName || ""}
+                onChange={handleChange}
                 required
               />
             </div>
@@ -92,12 +117,10 @@ export const UserProfileForm = () => {
               <Input
                 type="text"
                 id="last-name"
-                name="last-name"
-                autoComplete="family-name"
-                placeholder="Stone"
+                name="lastName"
                 className="mt-2"
-                value={currentUser?.lastName || ""}
-                onChange={() => { }}
+                value={form.lastName || ""}
+                onChange={handleChange}
               />
             </div>
             <div className="col-span-full sm:col-span-3">
@@ -109,11 +132,9 @@ export const UserProfileForm = () => {
                 type="email"
                 id="email"
                 name="email"
-                autoComplete="email"
-                placeholder="emma@acme.com"
                 className="mt-2"
-                value={currentUser?.email || ""}
-                onChange={() => { }}
+                value={form.email || ""}
+                onChange={handleChange}
               />
             </div>
             <div className="col-span-full sm:col-span-3">
@@ -125,15 +146,13 @@ export const UserProfileForm = () => {
                 type="tel"
                 id="phone"
                 name="phone"
-                autoComplete="tel"
-                placeholder="+62 ..."
                 className="mt-2"
-                value={currentUser?.phone || ""}
-                onChange={() => { }}
+                value={form.phone || ""}
+                onChange={handleChange}
               />
             </div>
             <div className="col-span-full mt-6 flex justify-end">
-              <Button type="submit">Save settings</Button>
+              <Button type="submit" disabled>Save</Button>
             </div>
           </div>
         </div>
