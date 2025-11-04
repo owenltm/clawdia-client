@@ -8,6 +8,7 @@ export type FinanceFormValues = {
   amount: string;
   category: FinanceCategory;
   description: string;
+  date: string;
 };
 
 export type Finance = {
@@ -17,5 +18,6 @@ export type Finance = {
   category: FinanceCategory,
   referenceId: string | null,
   description: string,
+  date: string,
   createdAt: Date,
 }

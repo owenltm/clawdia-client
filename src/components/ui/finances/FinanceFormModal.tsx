@@ -44,6 +44,7 @@ export function FinanceFormModal({
     amount: initialValues.amount || "",
     category: initialValues.category || "bills",
     description: initialValues.description || "",
+    date: initialValues.date || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,6 +65,7 @@ export function FinanceFormModal({
       amount: initialValues.amount || "",
       category: initialValues.category || "bills",
       description: initialValues.description || "",
+      date: initialValues.date || new Date().toISOString().split("T")[0],
     })
   }, [initialValues]);
 
@@ -76,6 +78,7 @@ export function FinanceFormModal({
         amount: initialValues.amount || "",
         category: initialValues.category || "bills",
         description: initialValues.description || "",
+        date: initialValues.date || "",
       });
     } else {
       // Reset value when showing empty box
@@ -170,6 +173,17 @@ export function FinanceFormModal({
               onChange={handleChange}
               min="0"
               step="any"
+              required
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label htmlFor="date" className="block mb-1">Date</label>
+            <Input
+              type="date"
+              name="date"
+              value={form.date}
+              onChange={handleChange}
               required
               disabled={loading}
             />
