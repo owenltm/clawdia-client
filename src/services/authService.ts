@@ -30,6 +30,34 @@ export const getCurrentUser = async () => {
   }
 }
 
+export const updateUserProfile = async (userData: Partial<AddUser>) => {
+  try {
+    const response = await requestHttp({
+      path: "/core/auth/me",
+      method: "PATCH",
+      body: userData,
+    });
+    return { success: true, data: response };
+  } catch (error: any) {
+    console.error('Error updating user profile:', error);
+    return { success: false, error: error.message || "Failed to update user profile" };
+  }
+}
+
+export const updateUserPassword = async (passwordData: { currentPassword: string; newPassword: string }) => {
+  try {
+    const response = await requestHttp({
+      path: "/core/auth/me/password",
+      method: "PATCH",
+      body: passwordData,
+    });
+    return { success: true, data: response };
+  } catch (error: any) {
+    console.error('Error updating user password:', error);
+    return { success: false, error: error.message || "Failed to update user password" };
+  }
+}
+
 export const getAllUsers = async () => {
   try {
     const response = await requestHttp({

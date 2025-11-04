@@ -3,6 +3,7 @@ import { Input } from "@/components/Input"
 import { Label } from "@/components/Label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select"
 import { useAuthContext } from "@/contexts/AuthContext"
+import { updateUserProfile } from "@/services/authService"
 import { roles } from "@/types/auth.types"
 import { useState } from "react"
 
@@ -14,8 +15,9 @@ type UserProfileValues = {
 }
 
 export const UserProfileForm = () => {
-  const { currentUser } = useAuthContext();
+  const { currentUser, refreshUser } = useAuthContext();
 
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<UserProfileValues>({
     firstName: currentUser?.firstName || undefined,
     lastName: currentUser?.lastName || undefined,
@@ -32,10 +34,18 @@ export const UserProfileForm = () => {
     e.preventDefault();
 
     try {
-      console.log("Updating user profile with data:", form);
+      setLoading(true);
+      const response = await updateUserProfile(form)
+
+      if (response.success) {
+        // Optionally show a success message or update the context
+        await refreshUser();
+      }
     } catch (error) {
       console.error("Error update profile:", error);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -107,6 +117,7 @@ export const UserProfileForm = () => {
                 value={form.firstName || ""}
                 onChange={handleChange}
                 required
+                disabled={loading}
               />
             </div>
             <div className="col-span-full sm:col-span-3">
@@ -121,6 +132,7 @@ export const UserProfileForm = () => {
                 className="mt-2"
                 value={form.lastName || ""}
                 onChange={handleChange}
+                disabled={loading}
               />
             </div>
             <div className="col-span-full sm:col-span-3">
@@ -135,6 +147,7 @@ export const UserProfileForm = () => {
                 className="mt-2"
                 value={form.email || ""}
                 onChange={handleChange}
+                disabled={loading}
               />
             </div>
             <div className="col-span-full sm:col-span-3">
@@ -149,10 +162,11 @@ export const UserProfileForm = () => {
                 className="mt-2"
                 value={form.phone || ""}
                 onChange={handleChange}
+                disabled={loading}
               />
             </div>
             <div className="col-span-full mt-6 flex justify-end">
-              <Button type="submit" disabled>Save</Button>
+              <Button type="submit">Save</Button>
             </div>
           </div>
         </div>

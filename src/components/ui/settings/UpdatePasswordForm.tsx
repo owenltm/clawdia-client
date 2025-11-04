@@ -2,26 +2,48 @@
 
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { updateUserPassword } from "@/services/authService";
 import { useState } from "react";
 
 export const UpdatePasswordForm = () => {
+  const { logout } = useAuthContext();
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const currentPassword = (e.currentTarget.elements.namedItem("currentPassword") as HTMLInputElement).value;
-    const newPassword = (e.currentTarget.elements.namedItem("newPassword") as HTMLInputElement).value;
-    const confirmNewPassword = (e.currentTarget.elements.namedItem("confirmNewPassword") as HTMLInputElement).value;
+    setLoading(true);
 
-    if (newPassword !== confirmNewPassword) {
-      setError("New password and confirmation do not match.");
-      return;
+    try {
+      const currentPassword = (e.currentTarget.elements.namedItem("currentPassword") as HTMLInputElement).value;
+      const newPassword = (e.currentTarget.elements.namedItem("newPassword") as HTMLInputElement).value;
+      const confirmNewPassword = (e.currentTarget.elements.namedItem("confirmNewPassword") as HTMLInputElement).value;
+
+      if (newPassword !== confirmNewPassword) {
+        setError("New password and confirmation do not match.");
+        return;
+      }
+
+      const response = await updateUserPassword({
+        currentPassword,
+        newPassword,
+      })
+
+      if (response.success) {
+        setError(null);
+
+        logout();
+      } else {
+        setError("Failed to update password.");
+      }
+    } catch (error) {
+      console.error("Error updating password:", error);
+      setError("An unexpected error occurred. Please try again.");
     }
 
-    // TODO: Implement password update logic here
-    console.log("Submitting password update:", { currentPassword, newPassword });
-    setError(null);
+    setLoading(false);
   }
 
   return (
@@ -55,6 +77,7 @@ export const UpdatePasswordForm = () => {
                 defaultValue=""
                 className="mt-2"
                 required
+                disabled={loading}
               />
             </div>
             <div className="col-span-full">
@@ -67,6 +90,7 @@ export const UpdatePasswordForm = () => {
                 defaultValue=""
                 className="mt-2"
                 required
+                disabled={loading}
               />
             </div>
             <div className="col-span-full">
@@ -79,10 +103,11 @@ export const UpdatePasswordForm = () => {
                 defaultValue=""
                 className="mt-2"
                 required
+                disabled={loading}
               />
             </div>
             <div className="col-span-full mt-6 flex justify-end">
-              <Button type="submit" disabled>Save</Button>
+              <Button type="submit" disabled={loading}>Save</Button>
             </div>
           </div>
         </div>
