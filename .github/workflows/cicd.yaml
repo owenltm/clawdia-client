@@ -32,7 +32,6 @@ jobs:
           source: "clawdia-client.tar"
           target: "/home/${{ secrets.VPS_USER }}/docker-tars/"
           overwrite: true
-          tar: false
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
