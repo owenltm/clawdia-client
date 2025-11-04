@@ -14,6 +14,8 @@ export default function BoxLayout({ inventory }: BoxLayoutProps) {
     switch (status.toLowerCase()) {
       case 'filled':
         return 'bg-green-700 border-green-500';
+      case 'unavailable':
+        return 'bg-orange-300 border-orange-200';
       default:
         return 'bg-gray-700 border-gray-500';
     }
@@ -23,6 +25,8 @@ export default function BoxLayout({ inventory }: BoxLayoutProps) {
     switch (status.toLowerCase()) {
       case 'filled':
         return 'text-green-200';
+      case 'unavailable':
+        return 'text-orange-700';
       default:
         return 'text-gray-200';
     }
@@ -58,6 +62,15 @@ export default function BoxLayout({ inventory }: BoxLayoutProps) {
             ...and {inventory.content.length - 2} more
           </div>
         )}
+        {
+          (inventory.content.length === 0 &&
+            inventory.status.toLowerCase() === 'unavailable'
+          ) && (
+            <div className={`text-sm italic ${getTextStyles(inventory.status)}`}>
+              {inventory.notes || 'This box is currently unavailable.'}
+            </div>
+          )
+        }
       </div>
     </div>
   );

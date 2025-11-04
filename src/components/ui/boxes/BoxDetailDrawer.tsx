@@ -10,11 +10,13 @@ import {
   DrawerTitle
 } from "@/components/Drawer";
 import { useBoxContext } from "@/contexts/BoxContext";
-import { checkInCrab } from "@/services/boxService";
-import { updateCrab } from "@/services/crabService";
+import useConfirmModal from "@/hooks/useConfirmModal";
+import { checkInCrab, removeBox } from "@/services/boxService";
+import { deleteCrab, updateCrab } from "@/services/crabService";
 import { fetchInventoryByBoxId } from "@/services/inventoryService";
 import { Box } from "@/types/box.types";
 import { Crab } from "@/types/crab.types";
+import { RiDeleteBin2Line } from "@remixicon/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BoxForm from "./BoxForm";
@@ -55,7 +57,12 @@ export function BoxDetailDrawer({
   const onSave = async (id: number | null) => {
     router.refresh();
 
-    if (!id && !focusedBox?.id) {
+    if (!focusedBox?.id) {
+      return;
+    }
+
+    if (!id) {
+      updateFocusedBox(null);
       return;
     }
 
@@ -112,6 +119,11 @@ export const BoxSection = (
       onSave: (boxId: number | null) => Promise<void> | void
     }
 ) => {
+  const { modal, open } = useConfirmModal({
+    title: "Delete Box",
+    description: "Are you sure you want to delete this box? This action cannot be undone.",
+    confirmText: "Delete Box",
+  });
   const { createBox, updateBox } = useBoxContext();
   const [isEditing, setIsEditing] = useState(initialValues.label ? false : true);
 
@@ -143,19 +155,37 @@ export const BoxSection = (
       />
     ) : (
       <div>
+        {modal()}
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
             Box Details
           </h3>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => {
-              setIsEditing(true);
-            }}
-          >
-            Edit
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setIsEditing(true);
+              }}
+            >
+              Edit
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                open(async () => {
+                  await removeBox(initialValues.id!);
+                  onSave(null);
+                });
+              }}
+              className="border-red-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 text-red-600 hover:bg-red-50 focus:ring-red-500"
+            >
+              <RiDeleteBin2Line
+                className="size-5 shrink-0"
+              />
+            </Button>
+          </div>
         </div>
         <div className="mb-4">
           <div className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -168,6 +198,18 @@ export const BoxSection = (
             Max Fill
           </div>
           <div>{initialValues.maxFill}</div>
+        </div>
+        <div className="mb-4">
+          <div className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Status
+          </div>
+          <div>{initialValues.status}</div>
+        </div>
+        <div className="mb-4">
+          <div className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Notes
+          </div>
+          <div>{initialValues.notes}</div>
         </div>
       </div>
     )}
@@ -185,6 +227,11 @@ export const CrabSection = (
     onSave: (boxId: number | null) => Promise<void> | void
   }
 ) => {
+  const { modal, open } = useConfirmModal({
+    title: "Delete Crab",
+    description: "Are you sure you want to delete this crab? This action cannot be undone.",
+    confirmText: "Delete Crab",
+  });
   const [crabForms, setCrabForms] = useState<Partial<Crab>[]>(initialValues || []);
   const [isEditing, setIsEditing] = useState<boolean[]>(initialValues.map((c) => c.weight ? false : true));
   const crabListRef = useRef<HTMLDivElement>(null);
@@ -213,6 +260,8 @@ export const CrabSection = (
 
   return <div>
     <div className="flex items-center justify-between mb-4">
+      {modal()}
+
       <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
         Crab Content
       </h3>
@@ -263,15 +312,31 @@ export const CrabSection = (
                       </div>
                       <div>{crab.supplier}</div>
                     </div>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => {
-                        toggleIsEditing(index, true);
-                      }}
-                    >
-                      Edit
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          toggleIsEditing(index, true);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => {
+                          open(async () => {
+                            await deleteCrab(crab.id!);
+                            onSave(boxId);
+                          });
+                        }}
+                      >
+                        <RiDeleteBin2Line
+                          className="size-5 shrink-0"
+                        />
+                      </Button>
+                    </div>
                   </div>
                   <div className="mb-4">
                     <div className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

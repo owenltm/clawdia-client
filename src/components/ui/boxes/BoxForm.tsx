@@ -1,6 +1,7 @@
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { Box } from "@/types/box.types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select";
+import { Box, BoxStatus } from "@/types/box.types";
 import { useState } from "react";
 
 export type BoxFormProps = {
@@ -9,9 +10,17 @@ export type BoxFormProps = {
   onSave?: (values: any) => void | Promise<void>;
 }
 
+const BoxStatusOptions = [
+  "filled",
+  "empty",
+  "unavailable"
+]
+
 export type BoxFormValues = {
   label: string;
+  status: BoxStatus;
   maxFill: number;
+  notes?: string;
 }
 
 export default function BoxForm(
@@ -21,6 +30,8 @@ export default function BoxForm(
   const [form, setForm] = useState<BoxFormValues>({
     label: initialValues?.label || "",
     maxFill: initialValues?.maxFill || 0,
+    status: initialValues?.status || "empty",
+    notes: initialValues?.notes || ""
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,6 +45,10 @@ export default function BoxForm(
     } finally {
       setLoading(false);
     }
+  }
+
+  const handleStatusChange = (value: string) => {
+    setForm((prev) => ({ ...prev, status: value as BoxStatus }));
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +92,39 @@ export default function BoxForm(
         />
       </div>
 
-      <div className="flex gap-4 mb-4">
+      <div className="mb-4">
+        <label htmlFor="boxStatus" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Box Status
+        </label>
+        <Select value={form.status} onValueChange={handleStatusChange} required>
+          <SelectTrigger id="boxStatus" name="status">
+            <SelectValue placeholder="Select box status..." />
+          </SelectTrigger>
+          <SelectContent align="end">
+            {BoxStatusOptions.map((status) => (
+              <SelectItem key={status} value={status}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Notes
+        </label>
+        <Input
+          id="notes"
+          name="notes"
+          type="text"
+          value={form.notes}
+          onChange={handleChange}
+          disabled={loading}
+        />
+      </div>
+
+      {/* <div className="flex gap-4 mb-4">
         <Button
           type="button"
           variant="secondary"
@@ -94,7 +141,7 @@ export default function BoxForm(
         >
           Delete
         </Button>
-      </div>
+      </div> */}
 
       <div className="flex gap-4">
         <Button
