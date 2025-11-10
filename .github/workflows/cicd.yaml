@@ -6,15 +6,15 @@ on:
       - development
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/master' && 'production' || 'staging' }}
 
     steps:
-      - name: Checkout selected branch
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Build Docker image
         run: |
@@ -33,7 +33,7 @@ jobs:
           target: "/home/${{ secrets.VPS_USER }}/docker-tars/"
           overwrite: true
 
-      - name: Deploy to VPS
+      - name: Load image on VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -41,12 +41,26 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             docker load -i /home/${{ secrets.VPS_USER }}/docker-tars/clawdia-client.tar
-            if [ "${{ github.ref_name }}" = "development" ]; then
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/master' && 'production' || 'staging' }}
+
+    steps:
+      - name: Deploy Image VPS
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            BRANCH="${{ github.event.inputs.branch || github.ref_name }}"
+            if [ "$BRANCH" = "development" ]; then
               echo "Deploying to staging..."
               docker stop clawdia-client-staging || true
               docker rm clawdia-client-staging || true
               docker run -d --restart always --name clawdia-client-staging -p 4310:3000 -e BASE_URL=${{ secrets.BASE_URL }} -e API_KEY=${{ secrets.API_KEY }} clawdia-client:latest
-            elif [ "${{ github.ref_name }}" = "master" ]; then
+            elif [ "$BRANCH" = "master" ]; then
               echo "Deploying to production..."
               docker stop clawdia-client-prod || true
               docker rm clawdia-client-prod || true
